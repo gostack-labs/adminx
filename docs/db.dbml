@@ -1,0 +1,131 @@
+Project soybeanAdminGo {
+    database_type:'PostgresSQL'
+    Note:'''
+    # adminx
+    通用go后台开发框架，快速实现业务功能
+    '''
+}
+
+Table users as U {
+    username varchar [pk,note:'主键，用户名']
+    hashed_password varchar [not null,note:'加密后密码']
+    full_name varchar [not null,note:'全名']
+    email varchar [not null,default:"",note:'邮箱']
+    phone varchar [not null,default:"",note:'手机号']
+    password_change_at timestamptz [not null, default:'0001-01-01 00:00:00Z',note:'修改密码时间']
+    created_at timestamptz [not null, default: `now()`]
+}
+
+Table sessions {
+    id uuid [pk]
+    username varchar [ref: > U.username, not null,note:'用户名，关联Users表username字段']
+    refresh_token varchar [not null,note:'刷新密钥']
+    user_agent varchar [not null,note:'用户代理']
+    client_ip varchar [not null,note:'ip']
+    is_blocked boolean [not null, default: false,note:'是否屏蔽']
+    expires_at timestamptz [not null,note:'过期时间']
+    created_at timestamptz [not null,default: `now()`]
+}
+
+Table casbin_rule{
+    id bigserial [pk]
+    p_type varchar [not null]
+    v0 varchar
+    v1 varchar
+    v2 varchar
+    v3 varchar
+    v4 varchar
+    v5 varchar
+    created_at timestamptz [not null,default:`now()`]
+}
+
+
+Table roles as R{
+    id bigserial [pk]
+    name varchar [not null,note: '名称']
+    is_disable boolean [not null,default:false,note:'是否禁用']
+    key varchar [not null,note:'标识']
+    sort int [not null,default:1,note:'排序']
+    remark varchar [note:'备注']
+    created_at timestamptz [not null,default:`now()`]
+
+    note:'角色表'
+}
+
+Table menus as M{
+    id bigserial [pk]
+    parent bigserial [not null,note:'父级']
+    title varchar [not null,note:'标题']
+    path varchar [note:'路径']
+    name varchar [not null,note:'路由名称']
+    component varchar [note:'组件路径']
+    redirect varchar [note:'跳转路径']
+    hyperlink varchar [note:'超链接']
+    is_hide boolean [not null,default: false,note:'是否隐藏']
+    is_keep_alive boolean [not null,default: true,note:'是否缓存组件状态']
+    is_affix boolean [not null,default: false,note:'是否固定在标签栏']
+    is_iframe boolean [not null,default:false,note:'是否内嵌窗口']
+    auth text[] [not null,note:'权限粒子']
+    icon varchar [note:'图标']
+    type int [not null,default: 1,note:'类型：1 目录，2 菜单，3 按钮']
+    sort int [not null,default: 1,note:'顺序']
+    created_at timestamptz [not null,default:`now()`]
+
+    note:'菜单表'
+}
+
+Table role_menus{
+    id bigserial [pk]
+    role bigserial [not null,ref: > R.id,note:'角色']
+    menu bigserial [not null,ref: > M.id,note:'菜单']
+    type int [not null,note:'类型：1 菜单，2 按钮']
+    created_at timestamptz [not null,default:`now()`]
+
+    Indexes{
+        role
+        menu
+        (role,menu)
+    }
+
+    note:'角色菜单关联表'
+}
+
+Table api_groups as AG{
+    id bigserial [pk]
+    name varchar [not null,note:'名称']
+    remark text [note:'备注']
+    created_at timestamptz [not null,default:`now()`]
+    note:'接口组表'
+}
+
+Table apis as A{
+    id bigserial [pk]
+    title varchar [not null,note:'标题']
+    url varchar [not null,note:'接口地址']
+    method varchar [not null,note:'请求方式']
+    group bigserial [not null,ref: > AG.id,note:'分组']
+    remark text [note:'备注']
+    created_at timestamptz [not null,default:`now()`]
+    note:'接口表'
+}
+
+Table menu_apis{
+    id bigserial [pk]
+    menu bigserial [not null,ref: > M.id,note:'菜单']
+    api bigserial [not null,ref: > A.id,note:'接口']
+    created_at timestamptz [not null,default:`now()`]
+    note:'菜单接口关联表'
+}
+
+TableGroup system{ // 系统表
+    users
+    sessions
+    menus
+    roles
+    role_menus
+    apis
+    api_groups
+    menu_apis
+    casbin_rule
+}
+
