@@ -1,4 +1,4 @@
-Project soybeanAdminGo {
+Project adminx {
     database_type:'PostgresSQL'
     Note:'''
     # adminx

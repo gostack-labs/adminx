@@ -14,7 +14,7 @@ postgres:
 
 # create database
 createdb:
-	docker exec -it postgres12 createdb --username=root -owner=root adminx
+	docker exec -it postgres12 createdb --username=root --owner=root adminx
 
 # drop database
 dropdb:
