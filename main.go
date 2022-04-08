@@ -1,11 +1,10 @@
 package main
 
 import (
-	"net/http"
-	"strings"
+	"log"
 
-	"github.com/gin-gonic/gin"
 	"github.com/gostack-labs/adminx/bootstrap"
+	"github.com/gostack-labs/adminx/internal/api"
 )
 
 func init() {
@@ -13,24 +12,13 @@ func init() {
 }
 
 func main() {
-	r := gin.New()
+	s, err := api.NewServer()
+	if err != nil {
+		log.Fatal("cannot create server:", err)
+	}
 
-	r.Use(gin.Logger(), gin.Recovery())
-
-	r.GET("/", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, gin.H{"hello": "world"})
-	})
-
-	r.NoRoute(func(ctx *gin.Context) {
-		acceptStr := ctx.Request.Header.Get("Accept")
-		if strings.Contains(acceptStr, "text/html") {
-			ctx.String(http.StatusNotFound, "页面返回 404")
-		} else {
-			ctx.JSON(http.StatusNotFound, gin.H{
-				"error_code":    404,
-				"error_message": "路由未定义，请确认 URL 和请求方法是否正确。"})
-		}
-	})
-
-	_ = r.Run(":9999")
+	err = s.Start()
+	if err != nil {
+		log.Fatal("connot start server:", err)
+	}
 }

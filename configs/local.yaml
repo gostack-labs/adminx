@@ -8,11 +8,11 @@ app:
   welcome: 欢迎使用 adminx
 Server:
   network:
-  addr:
+  addr: ':8080'
   readTimeout: 1s
   wirteTImeout: 1s
 db:
-  driver: postgresql
+  driver: postgres
   source: postgresql://root:secret@localhost:5432/adminx?sslmode=disable
 redis:
   addr:

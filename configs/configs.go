@@ -1,15 +1,16 @@
 package configs
 
 import (
+	"log"
 	"time"
 
 	"github.com/gostack-labs/adminx/pkg/config"
 	"github.com/gostack-labs/adminx/pkg/env"
 )
 
-var cfg = new(Config)
+var Cfg = new(AppConfig)
 
-type Config struct {
+type AppConfig struct {
 	App
 	Server
 	DB
@@ -70,5 +71,8 @@ func init() {
 	configFileName := env.Active().Value() + "." + configFileType
 
 	c := config.New("./configs", config.WithFileType(configFileType))
-	_ = c.Load(configFileName, &cfg)
+	err := c.Load(configFileName, &Cfg)
+	if err != nil {
+		log.Fatal("connot load config:", err)
+	}
 }

@@ -64,8 +64,8 @@ func init() {
 	case "pro":
 		active = pro
 	default:
-		active = stage
-		fmt.Println("Warning: '-env' cannot be found, or it is illegal. The default 'stage' will be used.")
+		active = local
+		fmt.Println("Warning: '-env' cannot be found, or it is illegal. The default 'local' will be used.")
 	}
 }
 
