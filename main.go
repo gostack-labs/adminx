@@ -5,7 +5,12 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gostack-labs/adminx/bootstrap"
 )
+
+func init() {
+	bootstrap.Initialize()
+}
 
 func main() {
 	r := gin.New()

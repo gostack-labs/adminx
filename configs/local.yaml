@@ -1,0 +1,31 @@
+app:
+  name: adminx
+  version: v0.0.1
+  mode: dev
+  ssl: false
+  csrf: false
+  debug: true
+  welcome: 欢迎使用 adminx
+Server:
+  network:
+  addr:
+  readTimeout: 1s
+  wirteTImeout: 1s
+db:
+  driver: postgresql
+  source: postgresql://root:secret@localhost:5432/adminx?sslmode=disable
+redis:
+  addr:
+  pass:
+  maxRetries:
+  minIdleConns:
+token:
+  key:
+  accessTokenDuration: 15m
+  refreshTokenDuration: 24h
+mail:
+  host:
+  port:
+  user:
+  pass:
+  to:
