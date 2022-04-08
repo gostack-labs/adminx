@@ -70,5 +70,5 @@ func init() {
 	configFileName := env.Active().Value() + "." + configFileType
 
 	c := config.New("./configs", config.WithFileType(configFileType))
-	c.Load(configFileName, &cfg)
+	_ = c.Load(configFileName, &cfg)
 }
