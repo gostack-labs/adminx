@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	db "github.com/gostack-labs/adminx/internal/repository/db/sqlc"
 	"github.com/gostack-labs/adminx/internal/utils"
+	"github.com/gostack-labs/bytego"
 	"github.com/lib/pq"
 )
 
@@ -37,16 +37,15 @@ func newSignupResponse(user db.User) SignupResponse {
 	}
 }
 
-func (server *Server) signupByEmail(ctx *gin.Context) {
+func (server *Server) signupByEmail(c *bytego.Ctx) error {
 	var req SignupByEmailRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+	if err := c.Bind(&req); err != nil {
+		c.JSON(http.StatusBadRequest, errorResponse(err))
 	}
 
 	hashedPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
+		c.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
 
 	// TODO email unique check
@@ -58,16 +57,16 @@ func (server *Server) signupByEmail(ctx *gin.Context) {
 		Email:          req.Email,
 	}
 
-	user, err := server.store.CreateUser(ctx, arg)
+	user, err := server.store.CreateUser(c.Request.Context(), arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
 			case "unique_violation":
-				ctx.JSON(http.StatusForbidden, errorResponse(err))
-				return
+				c.JSON(http.StatusForbidden, errorResponse(err))
 			}
 		}
 	}
 	rsp := newSignupResponse(user)
-	ctx.JSON(http.StatusOK, rsp)
+	c.JSON(http.StatusOK, rsp)
+	return err
 }

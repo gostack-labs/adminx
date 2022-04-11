@@ -1,22 +1,26 @@
 package configs
 
 import (
-	"log"
+	"bytes"
+	_ "embed"
+	"io"
+	"os"
+	"path/filepath"
 	"time"
 
-	"github.com/gostack-labs/adminx/pkg/config"
+	"github.com/fsnotify/fsnotify"
 	"github.com/gostack-labs/adminx/pkg/env"
+	"github.com/gostack-labs/adminx/pkg/file"
+	"github.com/spf13/viper"
 )
 
-var Cfg = new(AppConfig)
-
-type AppConfig struct {
-	App
-	Server
-	DB
-	Redis
-	Token
-	Mail
+type Config struct {
+	App    App
+	Server Server
+	DB     DB
+	Redis  Redis
+	Token  Token
+	Mail   Mail
 }
 
 type App struct {
@@ -64,15 +68,78 @@ type Mail struct {
 	To   string
 }
 
-func Boot() {}
+var (
+	//go:embed local_configs.yaml
+	localConfigs []byte
 
-func init() {
-	configFileType := "yaml"
-	configFileName := env.Active().Value() + "." + configFileType
+	//go:embed test_configs.yaml
+	testConfigs []byte
 
-	c := config.New("./configs", config.WithFileType(configFileType))
-	err := c.Load(configFileName, &Cfg)
-	if err != nil {
-		log.Fatal("connot load config:", err)
+	//go:embed stage_configs.yaml
+	stageConfigs []byte
+
+	//go:embed pro_configs.yaml
+	proConfigs []byte
+)
+
+func LoadConfig() (config Config, err error) {
+	var r io.Reader
+
+	switch env.Active().Value() {
+	case "local":
+		r = bytes.NewReader(localConfigs)
+	case "test":
+		r = bytes.NewReader(testConfigs)
+	case "stage":
+		r = bytes.NewReader(stageConfigs)
+	case "pro":
+		r = bytes.NewReader(proConfigs)
+	default:
+		r = bytes.NewReader(localConfigs)
 	}
+
+	viper.SetConfigType("yaml")
+
+	err = viper.ReadConfig(r)
+	if err != nil {
+		return
+	}
+
+	err = viper.Unmarshal(&config)
+	if err != nil {
+		return
+	}
+
+	viper.SetConfigName(env.Active().Value() + "_configs")
+	viper.AddConfigPath("./configs")
+
+	configFile := "./configs/" + env.Active().Value() + "_configs.yaml"
+	_, ok := file.IsExists(configFile)
+	if !ok {
+		err = os.MkdirAll(filepath.Dir(configFile), os.ModePerm)
+		if err != nil {
+			return
+		}
+
+		f, fErr := os.Create(configFile)
+		if fErr != nil {
+			err = fErr
+			return
+		}
+		defer f.Close()
+
+		err = viper.WriteConfig()
+		if err != nil {
+			return
+		}
+	}
+
+	viper.WatchConfig()
+	viper.OnConfigChange(func(in fsnotify.Event) {
+		err = viper.Unmarshal(&config)
+		if err != nil {
+			return
+		}
+	})
+	return
 }

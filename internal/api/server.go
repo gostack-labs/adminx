@@ -2,52 +2,49 @@ package api
 
 import (
 	"net/http"
-	"strings"
 
-	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/gostack-labs/adminx/configs"
 	db "github.com/gostack-labs/adminx/internal/repository/db/sqlc"
+	"github.com/gostack-labs/bytego"
 )
 
 // Server serves HTTP requests for our adminx service.
 type Server struct {
-	config configs.AppConfig
+	config configs.Config
 	store  db.Store
-	router *gin.Engine
+	router *bytego.App
 }
 
 // NewServer create a new HTTP server and set up routing.
-func NewServer() (*Server, error) {
+func NewServer(config configs.Config, store db.Store) (*Server, error) {
 	server := &Server{
-		config: *configs.Cfg,
-		store:  db.NewStore(),
+		config: config,
+		store:  store,
 	}
+
 	server.setupRouter()
 	return server, nil
 }
 
 func (server *Server) setupRouter() {
-	router := gin.Default()
-	router.POST("/signupByEmail", server.signupByEmail)
-
-	router.NoRoute(func(ctx *gin.Context) {
-		acceptStr := ctx.Request.Header.Get("Accept")
-		if strings.Contains(acceptStr, "text/html") {
-			ctx.String(http.StatusNotFound, "页面返回 404")
-		} else {
-			ctx.JSON(http.StatusNotFound, gin.H{
-				"error_code":    404,
-				"error_message": "路由未定义，请确认 URL 和请求方法是否正确。"})
-		}
+	router := bytego.New()
+	router.Debug(true)
+	router.Validator(validator.New().Struct)
+	router.GET("/", func(c *bytego.Ctx) error {
+		return c.JSON(http.StatusOK, bytego.Map{"hello": "world"})
 	})
+	router.POST("/signupByEmail", server.signupByEmail)
 
 	server.router = router
 }
 
-func (server *Server) Start() error {
-	return server.router.Run(configs.Cfg.Server.Addr)
+func (server *Server) Start(address string) error {
+	return server.router.Run(address)
 }
 
-func errorResponse(err error) gin.H {
-	return gin.H{"error": err.Error()}
+func errorResponse(err error) bytego.Map {
+	return bytego.Map{
+		"error": err.Error(),
+	}
 }
