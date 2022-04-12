@@ -6,6 +6,9 @@ on:
 permissions:
   contents: read
 
+env:
+  GOPRIVATE: "github.com/gostack-labs"
+
 jobs:
   golangci:
     name: lint
@@ -17,12 +20,14 @@ jobs:
         with:
          go-version: ^1.15
       
-      -
-        run: go env -w GOPRIVATE=github.com/gostack-labs
+      - name: Set up GOPRIVATE
+        env:
+          TOKEN: ${{ secrets.GOPRIVATE_TOKEN}}
+        run: git config --global url."https://bytegolang:${TOKEN}@github.com".insteadOf "https://github.com"
 
       - 
         uses: actions/checkout@v2
-        
+
       - 
         name: golangci-lint
         uses: golangci/golangci-lint-action@v2
