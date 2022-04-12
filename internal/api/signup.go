@@ -1,7 +1,9 @@
 package api
 
 import (
+	"database/sql"
 	"net/http"
+	"strings"
 	"time"
 
 	db "github.com/gostack-labs/adminx/internal/repository/db/sqlc"
@@ -10,11 +12,12 @@ import (
 	"github.com/lib/pq"
 )
 
-type SignupByEmailRequest struct {
+type SignupRequest struct {
 	Username string `json:"username" binding:"required,alphanum"`
 	Password string `json:"password" binding:"required,min=6"`
 	FullName string `json:"full_name" binding:"required"`
-	Email    string `json:"email" binding:"required,email"`
+	Email    string `json:"email" binding:"required_without=Phone,omitempty,email"`
+	Phone    string `json:"phone" binding:"required_without=Email,omitempty,phone"`
 }
 
 type SignupResponse struct {
@@ -37,8 +40,8 @@ func newSignupResponse(user db.User) SignupResponse {
 	}
 }
 
-func (server *Server) signupByEmail(c *bytego.Ctx) error {
-	var req SignupByEmailRequest
+func (server *Server) signup(c *bytego.Ctx) error {
+	var req SignupRequest
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse(err))
 	}
@@ -48,13 +51,37 @@ func (server *Server) signupByEmail(c *bytego.Ctx) error {
 		return c.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
 
-	// TODO email unique check
+	if strings.TrimSpace(req.Email) != "" {
+		u, err := server.store.GetUserByEmail(c.Request.Context(), req.Email)
+		if err != nil {
+			if err != sql.ErrNoRows {
+				return c.JSON(http.StatusInternalServerError, errorResponse(err))
+			}
+		}
+		if u != (db.User{}) {
+			return c.JSON(http.StatusForbidden, bytego.Map{"error": "该邮箱已存在！"})
+		}
+	}
+
+	if strings.TrimSpace(req.Phone) != "" {
+		u, err := server.store.GetUserByPhone(c.Request.Context(), req.Phone)
+		if err != nil {
+			if err != sql.ErrNoRows {
+				return c.JSON(http.StatusInternalServerError, errorResponse(err))
+			}
+		}
+
+		if u != (db.User{}) {
+			return c.JSON(http.StatusForbidden, bytego.Map{"error": "该手机号已存在！"})
+		}
+	}
 
 	arg := db.CreateUserParams{
 		Username:       req.Username,
 		HashedPassword: hashedPassword,
 		FullName:       req.FullName,
 		Email:          req.Email,
+		Phone:          req.Phone,
 	}
 
 	user, err := server.store.CreateUser(c.Request.Context(), arg)

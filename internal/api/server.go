@@ -36,7 +36,7 @@ func (server *Server) setupRouter() {
 	router.GET("/", func(c *bytego.Ctx) error {
 		return c.JSON(http.StatusOK, bytego.Map{"hello": "world"})
 	})
-	router.POST("/signupByEmail", server.signupByEmail)
+	router.POST("/signup", server.signup)
 
 	server.router = router
 }
