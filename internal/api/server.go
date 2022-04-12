@@ -7,6 +7,7 @@ import (
 	"github.com/gostack-labs/adminx/configs"
 	db "github.com/gostack-labs/adminx/internal/repository/db/sqlc"
 	"github.com/gostack-labs/bytego"
+	"github.com/gostack-labs/bytego/middleware/logger"
 )
 
 // Server serves HTTP requests for our adminx service.
@@ -30,6 +31,7 @@ func NewServer(config configs.Config, store db.Store) (*Server, error) {
 func (server *Server) setupRouter() {
 	router := bytego.New()
 	router.Debug(true)
+	router.Use(logger.New())
 	router.Validator(validator.New().Struct)
 	router.GET("/", func(c *bytego.Ctx) error {
 		return c.JSON(http.StatusOK, bytego.Map{"hello": "world"})
