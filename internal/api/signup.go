@@ -40,12 +40,12 @@ func newSignupResponse(user db.User) SignupResponse {
 func (server *Server) signupByEmail(c *bytego.Ctx) error {
 	var req SignupByEmailRequest
 	if err := c.Bind(&req); err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse(err))
+		_ = c.JSON(http.StatusBadRequest, errorResponse(err))
 	}
 
 	hashedPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, errorResponse(err))
+		_ = c.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
 
 	// TODO email unique check
@@ -62,11 +62,11 @@ func (server *Server) signupByEmail(c *bytego.Ctx) error {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
 			case "unique_violation":
-				c.JSON(http.StatusForbidden, errorResponse(err))
+				_ = c.JSON(http.StatusForbidden, errorResponse(err))
 			}
 		}
 	}
 	rsp := newSignupResponse(user)
-	c.JSON(http.StatusOK, rsp)
+	_ = c.JSON(http.StatusOK, rsp)
 	return err
 }
