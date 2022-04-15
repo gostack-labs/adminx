@@ -9,6 +9,13 @@ app:
 db:
   driver: postgres
   source: postgresql://root:secret@localhost:5432/adminx?sslmode=disable
+redis:
+  addr: 127.0.0.1:6379
+  pass:
+  db: 0
+  maxretries: 2
+  poolsize: 2
+  minidleconns: 2
 server:
   addr: :8080
   readtimeout: 1s
@@ -16,3 +23,12 @@ server:
 token:
   accesstokenduration: 15m
   refreshtokenduration: 24h
+mail:
+  host: 
+  port: 465
+  user: 
+  pass: 
+  to:
+verifycode:
+  keyprefix: adminx
+  expiretime: 15

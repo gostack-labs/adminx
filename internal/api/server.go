@@ -4,24 +4,24 @@ import (
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/gostack-labs/adminx/configs"
 	db "github.com/gostack-labs/adminx/internal/repository/db/sqlc"
+	"github.com/gostack-labs/adminx/internal/repository/redis"
 	"github.com/gostack-labs/bytego"
 	"github.com/gostack-labs/bytego/middleware/logger"
 )
 
 // Server serves HTTP requests for our adminx service.
 type Server struct {
-	config configs.Config
 	store  db.Store
+	cache  redis.Store
 	router *bytego.App
 }
 
 // NewServer create a new HTTP server and set up routing.
-func NewServer(config configs.Config, store db.Store) (*Server, error) {
+func NewServer(store db.Store, cache redis.Store) (*Server, error) {
 	server := &Server{
-		config: config,
-		store:  store,
+		store: store,
+		cache: cache,
 	}
 
 	server.setupRouter()
@@ -37,6 +37,7 @@ func (server *Server) setupRouter() {
 		return c.JSON(http.StatusOK, bytego.Map{"hello": "world"})
 	})
 	router.POST("/signup", server.signup)
+	router.POST("/signup/sendUsingEmail", server.sendUsingEmail)
 
 	server.router = router
 }
