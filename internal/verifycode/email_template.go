@@ -2,7 +2,6 @@ package verifycode
 
 import (
 	"bytes"
-	"fmt"
 	"html/template"
 )
 
@@ -13,7 +12,7 @@ func newHTMLEmail(code string) (subject string, body string, err error) {
 		Code: code,
 	}
 
-	subject = fmt.Sprint("adminx 验证码")
+	subject = "adminx 验证码"
 
 	body, err = getEmailHTMLContent(mailTemplate, mailData)
 	return

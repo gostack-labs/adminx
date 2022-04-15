@@ -52,6 +52,9 @@ func (vc *VerifyCode) SendEmail(email string) error {
 
 func (vc *VerifyCode) generateVerifyCode(key string) string {
 	code := cast.ToString(gofakeit.Number(100000, 999999))
-	vc.Store.Set(key, code)
+	err := vc.Store.Set(key, code)
+	if err != nil {
+		return ""
+	}
 	return code
 }
