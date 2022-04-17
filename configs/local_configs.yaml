@@ -21,6 +21,7 @@ server:
   readtimeout: 1s
   wirtetimeout: 1s
 token:
+  key: 12345678901234567890123456789012
   accesstokenduration: 15m
   refreshtokenduration: 24h
 mail:

@@ -61,8 +61,8 @@ type redis struct {
 
 type token struct {
 	Key                  string
-	AccessTokenDuration  string
-	RefreshTokenDuration string
+	AccessTokenDuration  time.Duration
+	RefreshTokenDuration time.Duration
 }
 
 type mail struct {

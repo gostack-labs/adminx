@@ -22,7 +22,7 @@ type SignupRequest struct {
 	VerifyCode string `json:"verify_code" bingding:"required,alphanum"`
 }
 
-type SignupResponse struct {
+type userResponse struct {
 	Username         string    `json:"username"`
 	FullName         string    `json:"full_name"`
 	Email            string    `json:"email"`
@@ -31,8 +31,8 @@ type SignupResponse struct {
 	CreatedAt        time.Time `json:"created_at"`
 }
 
-func newSignupResponse(user db.User) SignupResponse {
-	return SignupResponse{
+func newUserResponse(user db.User) userResponse {
+	return userResponse{
 		Username:         user.Username,
 		FullName:         user.FullName,
 		Email:            user.Email,
@@ -95,7 +95,7 @@ func (server *Server) signup(c *bytego.Ctx) error {
 			}
 		}
 	}
-	rsp := newSignupResponse(user)
+	rsp := newUserResponse(user)
 	return c.JSON(http.StatusOK, rsp)
 }
 
