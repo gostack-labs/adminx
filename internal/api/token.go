@@ -30,7 +30,7 @@ func (server *Server) renewAccessToken(c *bytego.Ctx) error {
 		return c.JSON(http.StatusUnauthorized, errorResponse(err))
 	}
 
-	session, err := server.store.GetSession(c.Request.Context(), refreshPayload.ID)
+	session, err := server.store.GetSession(c, refreshPayload.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.JSON(http.StatusNotFound, errorResponse(err))

@@ -9,7 +9,7 @@ require (
 	github.com/go-playground/validator/v10 v10.10.1
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/uuid v1.3.0
-	github.com/gostack-labs/bytego v0.0.0-20220412045041-cc2782d8ed4a
+	github.com/gostack-labs/bytego v0.0.0-20220417123033-ab9a979b91d9
 	github.com/spf13/cast v1.4.1
 	github.com/spf13/viper v1.10.1
 	golang.org/x/crypto v0.0.0-20220331220935-ae2d96664a29

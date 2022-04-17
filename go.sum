@@ -219,8 +219,8 @@ github.com/googleapis/gax-go/v2 v2.0.4/go.mod h1:0Wqv26UfaUD9n4G6kQubkQ+KchISgw+
 github.com/googleapis/gax-go/v2 v2.0.5/go.mod h1:DWXyrwAJ9X0FpwwEdw+IPEYBICEFu5mhpdKc/us6bOk=
 github.com/googleapis/gax-go/v2 v2.1.0/go.mod h1:Q3nei7sK6ybPYH7twZdmQpAd1MKb7pfu6SK+H1/DsU0=
 github.com/googleapis/gax-go/v2 v2.1.1/go.mod h1:hddJymUZASv3XPyGkUpKj8pPO47Rmb0eJc8R6ouapiM=
-github.com/gostack-labs/bytego v0.0.0-20220412045041-cc2782d8ed4a h1:lDTrJLdHGjEmZMdu7unT0rK2HHCWv1xU9MNTCtIn3XY=
-github.com/gostack-labs/bytego v0.0.0-20220412045041-cc2782d8ed4a/go.mod h1:MRTgGMfGAa/OEvf9R3XSV5CNTDO0mtSbuHHg3WxvUDg=
+github.com/gostack-labs/bytego v0.0.0-20220417123033-ab9a979b91d9 h1:zsR68iqQ7+2RjvgTfWW4A583oJPECkrqK0kB+arJAik=
+github.com/gostack-labs/bytego v0.0.0-20220417123033-ab9a979b91d9/go.mod h1:MRTgGMfGAa/OEvf9R3XSV5CNTDO0mtSbuHHg3WxvUDg=
 github.com/grpc-ecosystem/grpc-gateway v1.16.0/go.mod h1:BDjrQk3hbvj6Nolgz8mAMFbcEtjT1g+wF4CSlocrBnw=
 github.com/hashicorp/consul/api v1.12.0/go.mod h1:6pVBMo0ebnYdt2S3H87XhekM/HHrUoTD2XXb/VrZVy0=
 github.com/hashicorp/consul/sdk v0.8.0/go.mod h1:GBvyrGALthsZObzUGsfgHZQDXjg4lOjagTIwIR1vPms=

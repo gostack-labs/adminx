@@ -31,7 +31,7 @@ func (server *Server) logginUser(c *bytego.Ctx) error {
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse(err))
 	}
-	user, err := server.store.GetUser(c.Request.Context(), req.Username)
+	user, err := server.store.GetUser(c, req.Username)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.JSON(http.StatusNotFound, errorResponse(err))
@@ -60,7 +60,7 @@ func (server *Server) logginUser(c *bytego.Ctx) error {
 		return c.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
 
-	session, err := server.store.CreateSession(c.Request.Context(), db.CreateSessionParams{
+	session, err := server.store.CreateSession(c, db.CreateSessionParams{
 		ID:           refreshPayload.ID,
 		Username:     user.Username,
 		RefreshToken: refreshToken,

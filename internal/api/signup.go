@@ -54,7 +54,7 @@ func (server *Server) signup(c *bytego.Ctx) error {
 	}
 
 	if strings.TrimSpace(req.Email) != "" {
-		u, err := server.store.GetUserByEmail(c.Request.Context(), req.Email)
+		u, err := server.store.GetUserByEmail(c, req.Email)
 		if err != nil {
 			if err != sql.ErrNoRows {
 				return c.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -66,7 +66,7 @@ func (server *Server) signup(c *bytego.Ctx) error {
 	}
 
 	if strings.TrimSpace(req.Phone) != "" {
-		u, err := server.store.GetUserByPhone(c.Request.Context(), req.Phone)
+		u, err := server.store.GetUserByPhone(c, req.Phone)
 		if err != nil {
 			if err != sql.ErrNoRows {
 				return c.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -86,7 +86,7 @@ func (server *Server) signup(c *bytego.Ctx) error {
 		Phone:          req.Phone,
 	}
 
-	user, err := server.store.CreateUser(c.Request.Context(), arg)
+	user, err := server.store.CreateUser(c, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
@@ -112,5 +112,8 @@ func (s *Server) sendUsingEmail(c *bytego.Ctx) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
-	return c.EmptyContent(http.StatusOK)
+	return c.JSON(http.StatusOK, bytego.Map{
+		"success": true,
+		"message": "发送成功",
+	})
 }
