@@ -14,12 +14,12 @@ import (
 )
 
 type SignupRequest struct {
-	Username   string `json:"username" binding:"required,alphanum"`
-	Password   string `json:"password" binding:"required,min=6"`
-	FullName   string `json:"full_name" binding:"required"`
-	Email      string `json:"email" binding:"required_without=Phone,omitempty,email"`
-	Phone      string `json:"phone" binding:"required_without=Email,omitempty,phone"`
-	VerifyCode string `json:"verify_code" bingding:"required,alphanum"`
+	Username   string `json:"username" validate:"required,alphanum"`
+	Password   string `json:"password" validate:"required,min=6"`
+	FullName   string `json:"full_name" validate:"required"`
+	Email      string `json:"email" validate:"required_without=Phone,omitempty,email"`
+	Phone      string `json:"phone" validate:"required_without=Email,omitempty,phone"`
+	VerifyCode string `json:"verify_code" validate:"required,alphanum"`
 }
 
 type userResponse struct {
@@ -54,7 +54,7 @@ func (server *Server) signup(c *bytego.Ctx) error {
 	}
 
 	if strings.TrimSpace(req.Email) != "" {
-		u, err := server.store.GetUserByEmail(c, req.Email)
+		u, err := server.store.GetUserByEmail(c.Context(), req.Email)
 		if err != nil {
 			if err != sql.ErrNoRows {
 				return c.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -66,7 +66,7 @@ func (server *Server) signup(c *bytego.Ctx) error {
 	}
 
 	if strings.TrimSpace(req.Phone) != "" {
-		u, err := server.store.GetUserByPhone(c, req.Phone)
+		u, err := server.store.GetUserByPhone(c.Context(), req.Phone)
 		if err != nil {
 			if err != sql.ErrNoRows {
 				return c.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -86,7 +86,7 @@ func (server *Server) signup(c *bytego.Ctx) error {
 		Phone:          req.Phone,
 	}
 
-	user, err := server.store.CreateUser(c, arg)
+	user, err := server.store.CreateUser(c.Context(), arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
@@ -100,7 +100,7 @@ func (server *Server) signup(c *bytego.Ctx) error {
 }
 
 type VerifyCodeEmailRequest struct {
-	Email string `json:"email" binding:"required,email"`
+	Email string `json:"email" validate:"required,email"`
 }
 
 func (s *Server) sendUsingEmail(c *bytego.Ctx) error {

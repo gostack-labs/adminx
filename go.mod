@@ -6,10 +6,12 @@ require (
 	github.com/aead/chacha20poly1305 v0.0.0-20170617001512-233f39982aeb
 	github.com/brianvoe/gofakeit/v6 v6.15.0
 	github.com/fsnotify/fsnotify v1.5.1
+	github.com/go-playground/locales v0.14.0
+	github.com/go-playground/universal-translator v0.18.0
 	github.com/go-playground/validator/v10 v10.10.1
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/uuid v1.3.0
-	github.com/gostack-labs/bytego v0.0.0-20220417123033-ab9a979b91d9
+	github.com/gostack-labs/bytego v0.0.0-20220417151931-cd621dea13fc
 	github.com/spf13/cast v1.4.1
 	github.com/spf13/viper v1.10.1
 	golang.org/x/crypto v0.0.0-20220331220935-ae2d96664a29
@@ -21,8 +23,6 @@ require (
 	github.com/aead/poly1305 v0.0.0-20180717145839-3fee0db0b635 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
-	github.com/go-playground/locales v0.14.0 // indirect
-	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect

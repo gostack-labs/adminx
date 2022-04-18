@@ -13,8 +13,8 @@ import (
 )
 
 type logginUserRequest struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required,min=6"`
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required,min=6"`
 }
 
 type logginUserResponse struct {
@@ -31,7 +31,7 @@ func (server *Server) logginUser(c *bytego.Ctx) error {
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse(err))
 	}
-	user, err := server.store.GetUser(c, req.Username)
+	user, err := server.store.GetUser(c.Context(), req.Username)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.JSON(http.StatusNotFound, errorResponse(err))
@@ -60,7 +60,7 @@ func (server *Server) logginUser(c *bytego.Ctx) error {
 		return c.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
 
-	session, err := server.store.CreateSession(c, db.CreateSessionParams{
+	session, err := server.store.CreateSession(c.Context(), db.CreateSessionParams{
 		ID:           refreshPayload.ID,
 		Username:     user.Username,
 		RefreshToken: refreshToken,

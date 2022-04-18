@@ -11,7 +11,7 @@ import (
 )
 
 type renewAccessTokenRequest struct {
-	RefreshToken string `json:"refresh_token" binding:"required"`
+	RefreshToken string `json:"refresh_token" validate:"required"`
 }
 
 type renewAccessTokenResponse struct {
@@ -30,7 +30,7 @@ func (server *Server) renewAccessToken(c *bytego.Ctx) error {
 		return c.JSON(http.StatusUnauthorized, errorResponse(err))
 	}
 
-	session, err := server.store.GetSession(c, refreshPayload.ID)
+	session, err := server.store.GetSession(c.Context(), refreshPayload.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.JSON(http.StatusNotFound, errorResponse(err))
