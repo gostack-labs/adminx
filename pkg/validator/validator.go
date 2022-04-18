@@ -15,8 +15,6 @@ import (
 	"github.com/gostack-labs/bytego"
 )
 
-var trans ut.Translator
-
 func InitTrans(app *bytego.App, locale string) (err error) {
 	zhTrans := zh.New()
 	enTrans := en.New()
@@ -31,18 +29,33 @@ func InitTrans(app *bytego.App, locale string) (err error) {
 	switch locale {
 	case "zh":
 		err = zh_trans.RegisterDefaultTranslations(v, trans)
+		if err != nil {
+			return
+		}
 		err = v.RegisterTranslation("phone", trans, func(ut ut.Translator) error {
 			return ut.Add("phone", "{0}必须是一个有效的手机号码！", true)
 		}, func(ut ut.Translator, fe validator.FieldError) string {
 			t, _ := ut.T("phone", fe.Field())
 			return t
 		})
+		if err != nil {
+			return
+		}
 	case "en":
 		err = en_trans.RegisterDefaultTranslations(v, trans)
+		if err != nil {
+			return
+		}
 	default:
 		err = zh_trans.RegisterDefaultTranslations(v, trans)
+		if err != nil {
+			return
+		}
 	}
-	v.RegisterValidation("phone", validPhone)
+	err = v.RegisterValidation("phone", validPhone)
+	if err != nil {
+		return
+	}
 	v.RegisterTagNameFunc(func(field reflect.StructField) string {
 		count := 2
 		name := strings.SplitN(field.Tag.Get("json"), ",", count)[0]
