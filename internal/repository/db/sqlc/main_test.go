@@ -1,23 +1,19 @@
 package db
 
 import (
-	"database/sql"
+	"context"
 	"log"
 	"os"
 	"testing"
 
-	_ "github.com/lib/pq"
+	"github.com/gostack-labs/adminx/configs"
+	"github.com/jackc/pgx/v4"
 )
 
 var testQueries *Queries
 
-const (
-	dbDriver string = "postgres"
-	dbSource string = "postgresql://root:secret@localhost:5432/adminx?sslmode=disable"
-)
-
 func TestMain(m *testing.M) {
-	conn, err := sql.Open(dbDriver, dbSource)
+	conn, err := pgx.Connect(context.Background(), configs.Config.DB.Source)
 	if err != nil {
 		log.Fatal("connot connect to db:", err)
 	}

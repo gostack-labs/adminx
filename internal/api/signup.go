@@ -31,7 +31,7 @@ type userResponse struct {
 	CreatedAt        time.Time `json:"created_at"`
 }
 
-func newUserResponse(user db.User) userResponse {
+func newUserResponse(user *db.User) userResponse {
 	return userResponse{
 		Username:         user.Username,
 		FullName:         user.FullName,
@@ -60,7 +60,7 @@ func (server *Server) signup(c *bytego.Ctx) error {
 				return c.JSON(http.StatusInternalServerError, errorResponse(err))
 			}
 		}
-		if u != (db.User{}) {
+		if u != nil {
 			return c.JSON(http.StatusForbidden, bytego.Map{"error": "该邮箱已存在！"})
 		}
 	}
@@ -73,7 +73,7 @@ func (server *Server) signup(c *bytego.Ctx) error {
 			}
 		}
 
-		if u != (db.User{}) {
+		if u != nil {
 			return c.JSON(http.StatusForbidden, bytego.Map{"error": "该手机号已存在！"})
 		}
 	}
@@ -94,6 +94,7 @@ func (server *Server) signup(c *bytego.Ctx) error {
 				return c.JSON(http.StatusForbidden, errorResponse(err))
 			}
 		}
+		return c.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
 	rsp := newUserResponse(user)
 	return c.JSON(http.StatusOK, rsp)

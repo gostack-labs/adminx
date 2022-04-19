@@ -1,14 +1,14 @@
 package main
 
 import (
-	"database/sql"
+	"context"
 	"log"
 
 	"github.com/gostack-labs/adminx/configs"
 	"github.com/gostack-labs/adminx/internal/api"
 	db "github.com/gostack-labs/adminx/internal/repository/db/sqlc"
 	"github.com/gostack-labs/adminx/internal/repository/redis"
-	_ "github.com/lib/pq"
+	"github.com/jackc/pgx/v4"
 )
 
 func main() {
@@ -18,7 +18,7 @@ func main() {
 		log.Fatal("connot connect to redis:", err)
 	}
 
-	conn, err := sql.Open(configs.Config.DB.Driver, configs.Config.DB.Source)
+	conn, err := pgx.Connect(context.Background(), configs.Config.DB.Source)
 	if err != nil {
 		log.Fatal("connot connect to db:", err)
 	}

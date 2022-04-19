@@ -11,7 +11,7 @@ import (
 	"github.com/brianvoe/gofakeit/v6"
 )
 
-func createRandomUser(t *testing.T) User {
+func createRandomUser(t *testing.T) *User {
 	hashedPassword, err := utils.HashPassword(gofakeit.Password(true, false, false, false, false, 6))
 	require.NoError(t, err)
 

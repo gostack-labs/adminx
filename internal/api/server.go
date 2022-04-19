@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/gostack-labs/adminx/configs"
 	db "github.com/gostack-labs/adminx/internal/repository/db/sqlc"
 	"github.com/gostack-labs/adminx/internal/repository/redis"
 	"github.com/gostack-labs/adminx/pkg/token"
-	v "github.com/gostack-labs/adminx/pkg/validator"
+	v "github.com/gostack-labs/adminx/pkg/validate"
 	"github.com/gostack-labs/bytego"
 	"github.com/gostack-labs/bytego/middleware/logger"
 )
@@ -63,6 +65,15 @@ func (server *Server) Start(address string) error {
 }
 
 func errorResponse(err error) bytego.Map {
+	if errs, ok := err.(validator.ValidationErrors); ok {
+		rsp := make(bytego.Map)
+		for field, terr := range errs.Translate(v.Trans) {
+			rsp[field[strings.Index(field, ".")+1:]] = terr
+		}
+		return bytego.Map{
+			"error": rsp,
+		}
+	}
 	return bytego.Map{
 		"error": err.Error(),
 	}

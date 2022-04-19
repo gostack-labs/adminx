@@ -1,7 +1,7 @@
 package db
 
 import (
-	"database/sql"
+	"github.com/jackc/pgx/v4"
 )
 
 type Store interface {
@@ -9,11 +9,11 @@ type Store interface {
 }
 
 type SQLStore struct {
-	db *sql.DB
+	db *pgx.Conn
 	*Queries
 }
 
-func NewStore(db *sql.DB) Store {
+func NewStore(db *pgx.Conn) Store {
 	return &SQLStore{
 		db:      db,
 		Queries: New(db),

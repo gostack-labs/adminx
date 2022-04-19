@@ -1,7 +1,6 @@
-package validator
+package validate
 
 import (
-	"fmt"
 	"reflect"
 	"regexp"
 	"strings"
@@ -15,24 +14,22 @@ import (
 	"github.com/gostack-labs/bytego"
 )
 
+var Trans ut.Translator
+
 func InitTrans(app *bytego.App, locale string) (err error) {
 	zhTrans := zh.New()
 	enTrans := en.New()
 
 	uni := ut.New(zhTrans, zhTrans, enTrans)
-	trans, ok := uni.GetTranslator(locale)
-	if !ok {
-		return fmt.Errorf("uni.GetTranslator(%s)", locale)
-	}
+	Trans, _ = uni.GetTranslator(locale)
 	v := validator.New()
-	app.Validator(v.Struct)
 	switch locale {
 	case "zh":
-		err = zh_trans.RegisterDefaultTranslations(v, trans)
+		err = zh_trans.RegisterDefaultTranslations(v, Trans)
 		if err != nil {
 			return
 		}
-		err = v.RegisterTranslation("phone", trans, func(ut ut.Translator) error {
+		err = v.RegisterTranslation("phone", Trans, func(ut ut.Translator) error {
 			return ut.Add("phone", "{0}必须是一个有效的手机号码！", true)
 		}, func(ut ut.Translator, fe validator.FieldError) string {
 			t, _ := ut.T("phone", fe.Field())
@@ -41,16 +38,19 @@ func InitTrans(app *bytego.App, locale string) (err error) {
 		if err != nil {
 			return
 		}
+		break
 	case "en":
-		err = en_trans.RegisterDefaultTranslations(v, trans)
+		err = en_trans.RegisterDefaultTranslations(v, Trans)
 		if err != nil {
 			return
 		}
+		break
 	default:
-		err = zh_trans.RegisterDefaultTranslations(v, trans)
+		err = zh_trans.RegisterDefaultTranslations(v, Trans)
 		if err != nil {
 			return
 		}
+		break
 	}
 	err = v.RegisterValidation("phone", validPhone)
 	if err != nil {
@@ -64,6 +64,7 @@ func InitTrans(app *bytego.App, locale string) (err error) {
 		}
 		return name
 	})
+	app.Validator(v.Struct)
 	return
 }
 
