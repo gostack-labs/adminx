@@ -40,11 +40,7 @@ func (m *MenuTree) formatMenus(menuValueList []*MenuValue) {
 	m.ParentMenus = make(map[int64][]*MenuValue)
 	for _, menu := range menuValueList {
 		if menu.Parent != 0 {
-			if _, ok := m.ParentMenus[menu.Parent]; ok {
-				m.ParentMenus[menu.Parent] = append(m.ParentMenus[menu.Parent], menu)
-			} else {
-				m.ParentMenus[menu.Parent] = []*MenuValue{menu}
-			}
+			m.ParentMenus[menu.Parent] = append(m.ParentMenus[menu.Parent], menu)
 		}
 	}
 }
@@ -136,11 +132,7 @@ func (server *Server) menuTree(c *bytego.Ctx) error {
 
 	buttonMap := make(map[int64][]*db.Menu)
 	for _, b := range buttonList {
-		if _, ok := buttonMap[b.Parent]; ok {
-			buttonMap[b.Parent] = append(buttonMap[b.Parent], b)
-		} else {
-			buttonMap[b.Parent] = []*db.Menu{b}
-		}
+		buttonMap[b.Parent] = append(buttonMap[b.Parent], b)
 	}
 	return c.JSON(http.StatusOK, bytego.Map{
 		"menu":   result,
@@ -181,7 +173,7 @@ type createMenuRequest struct {
 	Sort int32 `json:"sort"`
 }
 
-func (server *Server) CreateMenu(c *bytego.Ctx) error {
+func (server *Server) createMenu(c *bytego.Ctx) error {
 	var req *createMenuRequest
 
 	if err := c.Bind(&req); err != nil {

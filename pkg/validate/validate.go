@@ -16,7 +16,7 @@ import (
 
 var Trans ut.Translator
 
-func InitTrans(app *bytego.App, locale string) (err error) {
+func InitTrans(app *bytego.App, locale string) error {
 	zhTrans := zh.New()
 	enTrans := en.New()
 
@@ -25,37 +25,19 @@ func InitTrans(app *bytego.App, locale string) (err error) {
 	v := validator.New()
 	switch locale {
 	case "zh":
-		err = zh_trans.RegisterDefaultTranslations(v, Trans)
-		if err != nil {
-			return
-		}
-		err = v.RegisterTranslation("phone", Trans, func(ut ut.Translator) error {
+		_ = zh_trans.RegisterDefaultTranslations(v, Trans)
+		_ = v.RegisterTranslation("phone", Trans, func(ut ut.Translator) error {
 			return ut.Add("phone", "{0}必须是一个有效的手机号码！", true)
 		}, func(ut ut.Translator, fe validator.FieldError) string {
 			t, _ := ut.T("phone", fe.Field())
 			return t
 		})
-		if err != nil {
-			return
-		}
-		break
 	case "en":
-		err = en_trans.RegisterDefaultTranslations(v, Trans)
-		if err != nil {
-			return
-		}
-		break
+		_ = en_trans.RegisterDefaultTranslations(v, Trans)
 	default:
-		err = zh_trans.RegisterDefaultTranslations(v, Trans)
-		if err != nil {
-			return
-		}
-		break
+		_ = zh_trans.RegisterDefaultTranslations(v, Trans)
 	}
-	err = v.RegisterValidation("phone", validPhone)
-	if err != nil {
-		return
-	}
+	err := v.RegisterValidation("phone", validPhone)
 	v.RegisterTagNameFunc(func(field reflect.StructField) string {
 		count := 2
 		name := strings.SplitN(field.Tag.Get("json"), ",", count)[0]
@@ -65,7 +47,7 @@ func InitTrans(app *bytego.App, locale string) (err error) {
 		return name
 	})
 	app.Validator(v.Struct)
-	return
+	return err
 }
 
 var validPhone validator.Func = func(fl validator.FieldLevel) bool {

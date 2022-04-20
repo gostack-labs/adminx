@@ -57,6 +57,14 @@ func (server *Server) setupRouter() {
 	router.POST("/signin", server.logginUser)
 	router.POST("/tokens/renew_access", server.renewAccessToken)
 
+	sys := router.Group("/sys")
+	menu := sys.Group("/menu")
+	menu.GET("/tree", server.menuTree)
+	menu.POST("/", server.createMenu)
+	menu.DELETE("/:id", server.deleteMenu)
+	menu.DELETE("/", server.batchDeleteMenu)
+	menu.GET("/:id", server.menuButton)
+	menu.POST("/:id", server.mentBindApi)
 	server.router = router
 }
 
