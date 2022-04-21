@@ -1,7 +1,6 @@
 package api
 
 import (
-	"database/sql"
 	"net/http"
 	"time"
 
@@ -33,9 +32,6 @@ func (server *Server) logginUser(c *bytego.Ctx) error {
 	}
 	user, err := server.store.GetUser(c.Context(), req.Username)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return c.JSON(http.StatusNotFound, errorResponse(err))
-		}
 		return c.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
 

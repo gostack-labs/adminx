@@ -13,6 +13,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/gostack-labs/bytego v0.0.0-20220419112119-9eb5d148a5d6
 	github.com/jackc/pgconn v1.11.0
+	github.com/jackc/pgtype v1.10.0
 	github.com/jackc/pgx/v4 v4.15.0
 	github.com/spf13/cast v1.4.1
 	github.com/spf13/viper v1.10.1
@@ -31,7 +32,6 @@ require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgproto3/v2 v2.2.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b // indirect
-	github.com/jackc/pgtype v1.10.0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mitchellh/mapstructure v1.4.3 // indirect
@@ -51,7 +51,7 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/lib/pq v1.10.4
+	github.com/lib/pq v1.10.4 // indirect
 	github.com/o1egl/paseto v1.0.0
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/testify v1.7.1

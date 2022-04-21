@@ -1,7 +1,6 @@
 package api
 
 import (
-	"database/sql"
 	"errors"
 	"net/http"
 
@@ -10,23 +9,23 @@ import (
 )
 
 type MenuValue struct {
-	ID        int64  `json:"id"`
-	Title     string `json:"title"`
-	Path      string `json:"path"`
-	Name      string `json:"name"`
-	Component string `json:"component"`
-	Parent    int64  `json:"parent"`
-	Type      int32  `json:"type"`
-	Sort      int32  `json:"sort"`
+	ID        int64   `json:"id"`
+	Title     string  `json:"title"`
+	Path      *string `json:"path"`
+	Name      string  `json:"name"`
+	Component *string `json:"component"`
+	Parent    int64   `json:"parent"`
+	Type      int32   `json:"type"`
+	Sort      int32   `json:"sort"`
 	Meta      struct {
 		Title       string   `json:"title"`
-		Hyperlink   string   `json:"hyperlink"`
+		Hyperlink   *string  `json:"hyperlink"`
 		IsHide      bool     `json:"is_hide"`
 		IsKeepAlive bool     `json:"is_keep_alive"`
 		IsAffix     bool     `json:"is_affix"`
 		IsIframe    bool     `json:"is_iframe"`
 		Auth        []string `json:"auth"`
-		Icon        string   `json:"icon"`
+		Icon        *string  `json:"icon"`
 	} `json:"meta"`
 	Children []*MenuValue `json:"children"`
 }
@@ -65,30 +64,30 @@ func (m *MenuTree) GetMenuTree() []*MenuValue {
 		menuValue := &MenuValue{
 			ID:        menu.ID,
 			Title:     menu.Title,
-			Path:      menu.Path.String,
+			Path:      menu.Path,
 			Name:      menu.Name,
-			Component: menu.Component.String,
+			Component: menu.Component,
 			Parent:    menu.Parent,
 			Type:      menu.Type,
 			Sort:      menu.Sort,
 			Meta: struct {
 				Title       string   `json:"title"`
-				Hyperlink   string   `json:"hyperlink"`
+				Hyperlink   *string  `json:"hyperlink"`
 				IsHide      bool     `json:"is_hide"`
 				IsKeepAlive bool     `json:"is_keep_alive"`
 				IsAffix     bool     `json:"is_affix"`
 				IsIframe    bool     `json:"is_iframe"`
 				Auth        []string `json:"auth"`
-				Icon        string   `json:"icon"`
+				Icon        *string  `json:"icon"`
 			}{
 				Title:       menu.Title,
-				Hyperlink:   menu.Hyperlink.String,
+				Hyperlink:   menu.Hyperlink,
 				IsHide:      menu.IsHide,
 				IsKeepAlive: menu.IsKeepAlive,
 				IsAffix:     menu.IsAffix,
 				IsIframe:    menu.IsIframe,
 				Auth:        menu.Auth,
-				Icon:        menu.Icon.String,
+				Icon:        menu.Icon,
 			},
 			Children: nil,
 		}
@@ -114,9 +113,6 @@ func (server *Server) menuTree(c *bytego.Ctx) error {
 	)
 	menus, err = server.store.ListMenusByType(c.Context(), []int32{1, 2})
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return c.JSON(http.StatusNotFound, errorResponse(err))
-		}
 		return c.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
 	m = MenuTree{Menus: menus}
@@ -124,9 +120,6 @@ func (server *Server) menuTree(c *bytego.Ctx) error {
 
 	buttonList, err = server.store.ListMenusByType(c.Context(), []int32{3})
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return c.JSON(http.StatusNotFound, errorResponse(err))
-		}
 		return c.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
 
@@ -146,15 +139,15 @@ type createMenuRequest struct {
 	// 标题
 	Title string `json:"title" validate:"required"`
 	// 路径
-	Path sql.NullString `json:"path"`
+	Path *string `json:"path"`
 	// 路由名称
 	Name string `json:"name" validate:"required"`
 	// 组件路径
-	Component sql.NullString `json:"component"`
+	Component *string `json:"component"`
 	// 跳转路径
-	Redirect sql.NullString `json:"redirect"`
+	Redirect *string `json:"redirect"`
 	// 超链接
-	Hyperlink sql.NullString `json:"hyperlink"`
+	Hyperlink *string `json:"hyperlink"`
 	// 是否隐藏
 	IsHide bool `json:"is_hide"`
 	// 是否缓存组件状态
@@ -166,7 +159,7 @@ type createMenuRequest struct {
 	// 权限粒子
 	Auth []string `json:"auth"`
 	// 图标
-	Icon sql.NullString `json:"icon"`
+	Icon *string `json:"icon"`
 	// 类型：1 目录，2 菜单，3 按钮
 	Type int32 `json:"type" validate:"oneof=1 2 3"`
 	// 顺序
@@ -217,9 +210,7 @@ func (server *Server) deleteMenu(c *bytego.Ctx) error {
 	// Check whether child nodes exist. If yes, they cannot be deleted
 	menuCount, err := server.store.CountMenusByParent(c.Context(), []int64{req.ID})
 	if err != nil {
-		if err != sql.ErrNoRows {
-			return c.JSON(http.StatusInternalServerError, errorResponse(err))
-		}
+		return c.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
 	if menuCount > 0 {
 		return c.JSON(http.StatusForbidden, errorResponse(errors.New("The current menu has child nodes and cannot be deleted directly")))
@@ -246,9 +237,7 @@ func (server *Server) batchDeleteMenu(c *bytego.Ctx) error {
 	}
 	menuCount, err := server.store.CountMenusByParent(c.Context(), req.MenuIDs)
 	if err != nil {
-		if err != sql.ErrNoRows {
-			return c.JSON(http.StatusInternalServerError, errorResponse(err))
-		}
+		return c.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
 	if menuCount > 0 {
 		return c.JSON(http.StatusForbidden, errorResponse(errors.New("The current menu has child nodes and cannot be deleted directly")))
@@ -275,9 +264,6 @@ func (server *Server) menuButton(c *bytego.Ctx) error {
 	}
 	buttonList, err := server.store.ListMenuByParent(c.Context(), req.ID)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return c.JSON(http.StatusNotFound, errorResponse(err))
-		}
 		return c.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
 	return c.JSON(http.StatusOK, buttonList)
@@ -298,9 +284,7 @@ func (server *Server) mentBindApi(c *bytego.Ctx) error {
 	if req.Type == 1 {
 		existApis, err := server.store.ListMenuApiForApiByMenu(c.Context(), req.ID)
 		if err != nil {
-			if err != sql.ErrNoRows {
-				return c.JSON(http.StatusInternalServerError, errorResponse(err))
-			}
+			return c.JSON(http.StatusInternalServerError, errorResponse(err))
 		}
 		apiMaps := make(map[int64]struct{})
 		if len(existApis) != 0 {
@@ -333,4 +317,44 @@ func (server *Server) mentBindApi(c *bytego.Ctx) error {
 	}
 
 	return c.JSON(http.StatusOK, bytego.Map{})
+}
+
+type mentApisRequest struct {
+	Menu int64 `param:"menu" validata:"required"`
+}
+
+func (server *Server) MenuApis(c *bytego.Ctx) error {
+	var req mentApisRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, errorResponse(err))
+	}
+
+	apiList, err := server.store.ListMenuApiForApiByMenu(c.Context(), req.Menu)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+	return c.JSON(http.StatusOK, apiList)
+}
+
+type menuApiListRequest struct {
+	Menu int64 `param:"menu" validate:"required"`
+}
+
+func (server *Server) MenuApiList(c *bytego.Ctx) error {
+	var req menuApiListRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, errorResponse(err))
+	}
+
+	apiIDs, err := server.store.ListMenuApiForApiByMenu(c.Context(), req.Menu)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+
+	apiList, err := server.store.ListApiByIDs(c.Context(), apiIDs)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+
+	return c.JSON(http.StatusOK, apiList)
 }

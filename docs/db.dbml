@@ -92,7 +92,7 @@ Table role_menus{
 
 Table api_groups as AG{
     id bigserial [pk]
-    name varchar [not null,note:'名称']
+    name varchar [not null,unique,note:'名称']
     remark text [note:'备注']
     created_at timestamptz [not null,default:`now()`]
     note:'接口组表'

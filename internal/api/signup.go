@@ -1,7 +1,7 @@
 package api
 
 import (
-	"database/sql"
+	"errors"
 	"net/http"
 	"strings"
 	"time"
@@ -10,7 +10,7 @@ import (
 	"github.com/gostack-labs/adminx/internal/utils"
 	"github.com/gostack-labs/adminx/internal/verifycode"
 	"github.com/gostack-labs/bytego"
-	"github.com/lib/pq"
+	"github.com/jackc/pgconn"
 )
 
 type SignupRequest struct {
@@ -56,9 +56,7 @@ func (server *Server) signup(c *bytego.Ctx) error {
 	if strings.TrimSpace(req.Email) != "" {
 		u, err := server.store.GetUserByEmail(c.Context(), req.Email)
 		if err != nil {
-			if err != sql.ErrNoRows {
-				return c.JSON(http.StatusInternalServerError, errorResponse(err))
-			}
+			return c.JSON(http.StatusInternalServerError, errorResponse(err))
 		}
 		if u != nil {
 			return c.JSON(http.StatusForbidden, bytego.Map{"error": "该邮箱已存在！"})
@@ -68,9 +66,7 @@ func (server *Server) signup(c *bytego.Ctx) error {
 	if strings.TrimSpace(req.Phone) != "" {
 		u, err := server.store.GetUserByPhone(c.Context(), req.Phone)
 		if err != nil {
-			if err != sql.ErrNoRows {
-				return c.JSON(http.StatusInternalServerError, errorResponse(err))
-			}
+			return c.JSON(http.StatusInternalServerError, errorResponse(err))
 		}
 
 		if u != nil {
@@ -88,9 +84,9 @@ func (server *Server) signup(c *bytego.Ctx) error {
 
 	user, err := server.store.CreateUser(c.Context(), arg)
 	if err != nil {
-		if pqErr, ok := err.(*pq.Error); ok {
-			switch pqErr.Code.Name() {
-			case "unique_violation":
+		var pgxerr *pgconn.PgError
+		if errors.As(err, &pgxerr) {
+			if pgxerr.Code == "23505" {
 				return c.JSON(http.StatusForbidden, errorResponse(err))
 			}
 		}

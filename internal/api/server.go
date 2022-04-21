@@ -60,11 +60,17 @@ func (server *Server) setupRouter() {
 	sys := router.Group("/sys")
 	menu := sys.Group("/menu")
 	menu.GET("/tree", server.menuTree)
-	menu.POST("/", server.createMenu)
-	menu.DELETE("/:id", server.deleteMenu)
-	menu.DELETE("/", server.batchDeleteMenu)
-	menu.GET("/:id", server.menuButton)
-	menu.POST("/:id", server.mentBindApi)
+	menu.POST("", server.createMenu)
+	menu.DELETE("/single/:id", server.deleteMenu)
+	menu.DELETE("/batch", server.batchDeleteMenu)
+	menu.GET("/button/:id", server.menuButton)
+	menu.POST("/api/:id", server.mentBindApi)
+	menu.GET("/api/:menu", server.MenuApis)
+	menu.GET("/api-list/:menu", server.MenuApiList)
+
+	apiGroup := sys.Group("/api-group")
+	apiGroup.GET("", server.listApiGroup)
+	apiGroup.POST("", server.createApiGroup)
 	server.router = router
 }
 

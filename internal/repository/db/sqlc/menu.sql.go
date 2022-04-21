@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const countMenusByParent = `-- name: CountMenusByParent :one
@@ -45,21 +44,21 @@ INSERT INTO menus (
 `
 
 type CreateMenuParams struct {
-	Parent      int64          `json:"parent"`
-	Title       string         `json:"title"`
-	Path        sql.NullString `json:"path"`
-	Name        string         `json:"name"`
-	Component   sql.NullString `json:"component"`
-	Redirect    sql.NullString `json:"redirect"`
-	Hyperlink   sql.NullString `json:"hyperlink"`
-	IsHide      bool           `json:"is_hide"`
-	IsKeepAlive bool           `json:"is_keep_alive"`
-	IsAffix     bool           `json:"is_affix"`
-	IsIframe    bool           `json:"is_iframe"`
-	Auth        []string       `json:"auth"`
-	Icon        sql.NullString `json:"icon"`
-	Type        int32          `json:"type"`
-	Sort        int32          `json:"sort"`
+	Parent      int64    `json:"parent"`
+	Title       string   `json:"title"`
+	Path        *string  `json:"path"`
+	Name        string   `json:"name"`
+	Component   *string  `json:"component"`
+	Redirect    *string  `json:"redirect"`
+	Hyperlink   *string  `json:"hyperlink"`
+	IsHide      bool     `json:"is_hide"`
+	IsKeepAlive bool     `json:"is_keep_alive"`
+	IsAffix     bool     `json:"is_affix"`
+	IsIframe    bool     `json:"is_iframe"`
+	Auth        []string `json:"auth"`
+	Icon        *string  `json:"icon"`
+	Type        int32    `json:"type"`
+	Sort        int32    `json:"sort"`
 }
 
 func (q *Queries) CreateMenu(ctx context.Context, arg CreateMenuParams) (*Menu, error) {

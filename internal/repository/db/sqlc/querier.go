@@ -12,6 +12,8 @@ import (
 
 type Querier interface {
 	CountMenusByParent(ctx context.Context, dollar_1 []int64) (int64, error)
+	// CreateApiGroup 创建 api组
+	CreateApiGroup(ctx context.Context, arg CreateApiGroupParams) error
 	CreateMenu(ctx context.Context, arg CreateMenuParams) (*Menu, error)
 	CreateMenuApi(ctx context.Context, arg []CreateMenuApiParams) *CreateMenuApiBatchResults
 	CreateSession(ctx context.Context, arg CreateSessionParams) (*Session, error)
@@ -22,6 +24,8 @@ type Querier interface {
 	GetUser(ctx context.Context, username string) (*User, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	GetUserByPhone(ctx context.Context, phone string) (*User, error)
+	ListApiByIDs(ctx context.Context, dollar_1 []int64) ([]*Api, error)
+	ListApiGroup(ctx context.Context, key string) ([]*ApiGroup, error)
 	ListMenuApiForApiByMenu(ctx context.Context, menu int64) ([]int64, error)
 	ListMenuByParent(ctx context.Context, parent int64) ([]*Menu, error)
 	ListMenusByType(ctx context.Context, dollar_1 []int32) ([]*Menu, error)

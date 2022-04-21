@@ -1,7 +1,6 @@
 package api
 
 import (
-	"database/sql"
 	"fmt"
 	"net/http"
 	"time"
@@ -32,9 +31,6 @@ func (server *Server) renewAccessToken(c *bytego.Ctx) error {
 
 	session, err := server.store.GetSession(c.Context(), refreshPayload.ID)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return c.JSON(http.StatusNotFound, errorResponse(err))
-		}
 		return c.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
 

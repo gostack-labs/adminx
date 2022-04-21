@@ -5,7 +5,6 @@
 package db
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -23,8 +22,8 @@ type Api struct {
 	// 分组
 	Group int64 `json:"group"`
 	// 备注
-	Remark    sql.NullString `json:"remark"`
-	CreatedAt time.Time      `json:"created_at"`
+	Remark    *string   `json:"remark"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 // 接口组表
@@ -33,20 +32,20 @@ type ApiGroup struct {
 	// 名称
 	Name string `json:"name"`
 	// 备注
-	Remark    sql.NullString `json:"remark"`
-	CreatedAt time.Time      `json:"created_at"`
+	Remark    *string   `json:"remark"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type CasbinRule struct {
-	ID        int64          `json:"id"`
-	PType     string         `json:"p_type"`
-	V0        sql.NullString `json:"v0"`
-	V1        sql.NullString `json:"v1"`
-	V2        sql.NullString `json:"v2"`
-	V3        sql.NullString `json:"v3"`
-	V4        sql.NullString `json:"v4"`
-	V5        sql.NullString `json:"v5"`
-	CreatedAt time.Time      `json:"created_at"`
+	ID        int64     `json:"id"`
+	PType     string    `json:"p_type"`
+	V0        *string   `json:"v0"`
+	V1        *string   `json:"v1"`
+	V2        *string   `json:"v2"`
+	V3        *string   `json:"v3"`
+	V4        *string   `json:"v4"`
+	V5        *string   `json:"v5"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 // 菜单表
@@ -57,15 +56,15 @@ type Menu struct {
 	// 标题
 	Title string `json:"title"`
 	// 路径
-	Path sql.NullString `json:"path"`
+	Path *string `json:"path"`
 	// 路由名称
 	Name string `json:"name"`
 	// 组件路径
-	Component sql.NullString `json:"component"`
+	Component *string `json:"component"`
 	// 跳转路径
-	Redirect sql.NullString `json:"redirect"`
+	Redirect *string `json:"redirect"`
 	// 超链接
-	Hyperlink sql.NullString `json:"hyperlink"`
+	Hyperlink *string `json:"hyperlink"`
 	// 是否隐藏
 	IsHide bool `json:"is_hide"`
 	// 是否缓存组件状态
@@ -77,7 +76,7 @@ type Menu struct {
 	// 权限粒子
 	Auth []string `json:"auth"`
 	// 图标
-	Icon sql.NullString `json:"icon"`
+	Icon *string `json:"icon"`
 	// 类型：1 目录，2 菜单，3 按钮
 	Type int32 `json:"type"`
 	// 顺序
@@ -107,8 +106,8 @@ type Role struct {
 	// 排序
 	Sort int32 `json:"sort"`
 	// 备注
-	Remark    sql.NullString `json:"remark"`
-	CreatedAt time.Time      `json:"created_at"`
+	Remark    *string   `json:"remark"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 // 角色菜单关联表
