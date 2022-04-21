@@ -24,11 +24,11 @@ INSERT INTO menus (
 ) RETURNING *;
 
 -- name: DeleteMenu :exec
-DELETE FROM menus WHERE id = ANY($1::bigserial[]);
+DELETE FROM menus WHERE id = ANY($1::bigint[]);
 
 -- name: CountMenusByParent :one
 SELECT count(*) FROM menus
-WHERE parent = ANY($1::bigserial[]);
+WHERE parent = ANY($1::bigint[]);
 
 -- name: ListMenuByParent :many
 SELECT * FROM menus

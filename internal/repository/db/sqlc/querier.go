@@ -12,23 +12,28 @@ import (
 
 type Querier interface {
 	CountMenusByParent(ctx context.Context, dollar_1 []int64) (int64, error)
-	// CreateApiGroup 创建 api组
+	// CreateApiGroup 创建 api 组
 	CreateApiGroup(ctx context.Context, arg CreateApiGroupParams) error
 	CreateMenu(ctx context.Context, arg CreateMenuParams) (*Menu, error)
 	CreateMenuApi(ctx context.Context, arg []CreateMenuApiParams) *CreateMenuApiBatchResults
 	CreateSession(ctx context.Context, arg CreateSessionParams) (*Session, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (*User, error)
+	// DeleteApiGroup 删除 Api 组
+	DeleteApiGroup(ctx context.Context, dollar_1 []int64) error
 	DeleteMenu(ctx context.Context, dollar_1 []int64) error
 	DeleteMenuApiByMenuAndApi(ctx context.Context, arg DeleteMenuApiByMenuAndApiParams) error
 	GetSession(ctx context.Context, id uuid.UUID) (*Session, error)
 	GetUser(ctx context.Context, username string) (*User, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	GetUserByPhone(ctx context.Context, phone string) (*User, error)
+	ListApiByGroup(ctx context.Context, dollar_1 []int64) ([]*Api, error)
 	ListApiByIDs(ctx context.Context, dollar_1 []int64) ([]*Api, error)
 	ListApiGroup(ctx context.Context, key string) ([]*ApiGroup, error)
 	ListMenuApiForApiByMenu(ctx context.Context, menu int64) ([]int64, error)
 	ListMenuByParent(ctx context.Context, parent int64) ([]*Menu, error)
 	ListMenusByType(ctx context.Context, dollar_1 []int32) ([]*Menu, error)
+	// UpdateApiGroup 修改 api 组
+	UpdateApiGroup(ctx context.Context, arg UpdateApiGroupParams) error
 }
 
 var _ Querier = (*Queries)(nil)

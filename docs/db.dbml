@@ -54,7 +54,7 @@ Table roles as R{
 
 Table menus as M{
     id bigserial [pk]
-    parent bigserial [not null,note:'父级']
+    parent bigint [not null,note:'父级']
     title varchar [not null,note:'标题']
     path varchar [note:'路径']
     name varchar [not null,note:'路由名称']
@@ -76,8 +76,8 @@ Table menus as M{
 
 Table role_menus{
     id bigserial [pk]
-    role bigserial [not null,ref: > R.id,note:'角色']
-    menu bigserial [not null,ref: > M.id,note:'菜单']
+    role bigint [not null,ref: > R.id,note:'角色']
+    menu bigint [not null,ref: > M.id,note:'菜单']
     type int [not null,note:'类型：1 菜单，2 按钮']
     created_at timestamptz [not null,default:`now()`]
 
@@ -103,7 +103,7 @@ Table apis as A{
     title varchar [not null,note:'标题']
     url varchar [not null,note:'接口地址']
     method varchar [not null,note:'请求方式']
-    group bigserial [not null,ref: > AG.id,note:'分组']
+    groups bigint [not null,ref: > AG.id,note:'分组']
     remark text [note:'备注']
     created_at timestamptz [not null,default:`now()`]
     note:'接口表'
@@ -111,8 +111,8 @@ Table apis as A{
 
 Table menu_apis{
     id bigserial [pk]
-    menu bigserial [not null,ref: > M.id,note:'菜单']
-    api bigserial [not null,ref: > A.id,note:'接口']
+    menu bigint [not null,ref: > M.id,note:'菜单']
+    api bigint [not null,ref: > A.id,note:'接口']
     created_at timestamptz [not null,default:`now()`]
     note:'菜单接口关联表'
 }

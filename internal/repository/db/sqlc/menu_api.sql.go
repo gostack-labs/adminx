@@ -11,7 +11,7 @@ import (
 
 const deleteMenuApiByMenuAndApi = `-- name: DeleteMenuApiByMenuAndApi :exec
 DELETE FROM menu_apis
-WHERE menu = $1 AND api = ANY($2::bigserial[])
+WHERE menu = $1 AND api = ANY($2::bigint[])
 `
 
 type DeleteMenuApiByMenuAndApiParams struct {

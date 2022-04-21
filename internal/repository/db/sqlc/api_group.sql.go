@@ -22,9 +22,20 @@ type CreateApiGroupParams struct {
 	Remark *string `json:"remark"`
 }
 
-// CreateApiGroup 创建 api组
+// CreateApiGroup 创建 api 组
 func (q *Queries) CreateApiGroup(ctx context.Context, arg CreateApiGroupParams) error {
 	_, err := q.db.Exec(ctx, createApiGroup, arg.Name, arg.Remark)
+	return err
+}
+
+const deleteApiGroup = `-- name: DeleteApiGroup :exec
+DELETE FROM api_groups
+WHERE id = ANY($1::bigint[])
+`
+
+// DeleteApiGroup 删除 Api 组
+func (q *Queries) DeleteApiGroup(ctx context.Context, dollar_1 []int64) error {
+	_, err := q.db.Exec(ctx, deleteApiGroup, dollar_1)
 	return err
 }
 
@@ -56,4 +67,22 @@ func (q *Queries) ListApiGroup(ctx context.Context, key string) ([]*ApiGroup, er
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateApiGroup = `-- name: UpdateApiGroup :exec
+UPDATE api_groups
+SET name = $1, remark = $2
+WHERE id = $3
+`
+
+type UpdateApiGroupParams struct {
+	Name   string  `json:"name"`
+	Remark *string `json:"remark"`
+	ID     int64   `json:"id"`
+}
+
+// UpdateApiGroup 修改 api 组
+func (q *Queries) UpdateApiGroup(ctx context.Context, arg UpdateApiGroupParams) error {
+	_, err := q.db.Exec(ctx, updateApiGroup, arg.Name, arg.Remark, arg.ID)
+	return err
 }

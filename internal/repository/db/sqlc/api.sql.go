@@ -9,9 +9,42 @@ import (
 	"context"
 )
 
+const listApiByGroup = `-- name: ListApiByGroup :many
+SELECT id, title, url, method, groups, remark, created_at FROM apis
+WHERE groups = ANY($1::bigint[])
+`
+
+func (q *Queries) ListApiByGroup(ctx context.Context, dollar_1 []int64) ([]*Api, error) {
+	rows, err := q.db.Query(ctx, listApiByGroup, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*Api{}
+	for rows.Next() {
+		var i Api
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.Url,
+			&i.Method,
+			&i.Groups,
+			&i.Remark,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listApiByIDs = `-- name: ListApiByIDs :many
-SELECT id, title, url, method, "group", remark, created_at FROM apis
-WHERE id = ANY($1::bigserial[])
+SELECT id, title, url, method, groups, remark, created_at FROM apis
+WHERE id = ANY($1::bigint[])
 `
 
 func (q *Queries) ListApiByIDs(ctx context.Context, dollar_1 []int64) ([]*Api, error) {
@@ -28,7 +61,7 @@ func (q *Queries) ListApiByIDs(ctx context.Context, dollar_1 []int64) ([]*Api, e
 			&i.Title,
 			&i.Url,
 			&i.Method,
-			&i.Group,
+			&i.Groups,
 			&i.Remark,
 			&i.CreatedAt,
 		); err != nil {

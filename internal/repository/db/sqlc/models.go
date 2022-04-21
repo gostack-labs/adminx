@@ -20,7 +20,7 @@ type Api struct {
 	// 请求方式
 	Method string `json:"method"`
 	// 分组
-	Group int64 `json:"group"`
+	Groups int64 `json:"groups"`
 	// 备注
 	Remark    *string   `json:"remark"`
 	CreatedAt time.Time `json:"created_at"`

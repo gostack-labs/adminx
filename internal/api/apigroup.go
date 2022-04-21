@@ -50,5 +50,80 @@ func (server *Server) createApiGroup(c *bytego.Ctx) error {
 		}
 		return c.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
-	return c.JSON(http.StatusOK, struct{}{})
+	return c.JSON(http.StatusOK, bytego.Map{"success": true, "message": "添加成功"})
+}
+
+type updateApiGroupRequest struct {
+	ID     int64   `param:"id" validate:"required"`
+	Name   string  `json:"name" validate:"required"`
+	Remark *string `json:"remark" validate:"required,omitempty"`
+}
+
+func (server *Server) updateApiGroup(c *bytego.Ctx) error {
+	var req updateApiGroupRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, errorResponse(err))
+	}
+	arg := db.UpdateApiGroupParams{
+		Name:   req.Name,
+		Remark: req.Remark,
+		ID:     req.ID,
+	}
+	err := server.store.UpdateApiGroup(c.Context(), arg)
+	if err != nil {
+		var pgxerr *pgconn.PgError
+		if errors.As(err, &pgxerr) {
+			if pgxerr.Code == "23505" {
+				return c.JSON(http.StatusForbidden, errorResponse(err))
+			}
+		}
+		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+	return c.JSON(http.StatusOK, bytego.Map{"success": true, "message": "修改成功"})
+}
+
+type deleteApiGroupRequest struct {
+	ID int64 `param:"id" validate:"required"`
+}
+
+func (server *Server) deleteApiGroup(c *bytego.Ctx) error {
+	var req deleteApiGroupRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, errorResponse(err))
+	}
+	apiList, err := server.store.ListApiByGroup(c.Context(), []int64{req.ID})
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+	if len(apiList) > 0 {
+		return c.JSON(http.StatusForbidden, errorResponse(errors.New("The api group has apis and cannot be deleted directly")))
+	}
+	err = server.store.DeleteApiGroup(c.Context(), []int64{req.ID})
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+	return c.JSON(http.StatusOK, bytego.Map{"success": true, "message": "删除成功"})
+}
+
+type batchDeleteApiGroupRequest struct {
+	IDs []int64 `json:"ids" validate:"required"`
+}
+
+func (server *Server) batchDeleteApiGroup(c *bytego.Ctx) error {
+	var req batchDeleteApiGroupRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, errorResponse(err))
+	}
+	apiList, err := server.store.ListApiByGroup(c.Context(), req.IDs)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+	if len(apiList) > 0 {
+		return c.JSON(http.StatusForbidden, errorResponse(errors.New("The api group has apis and cannot be deleted directly")))
+	}
+	err = server.store.DeleteApiGroup(c.Context(), req.IDs)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+	return c.JSON(http.StatusOK, bytego.Map{"success": true, "message": "删除成功"})
 }

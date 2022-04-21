@@ -1,6 +1,6 @@
 -- SQL dump generated using DBML (dbml-lang.org)
 -- Database: PostgreSQL
--- Generated at: 2022-04-20T16:33:40.709Z
+-- Generated at: 2022-04-21T12:12:39.828Z
 
 CREATE TABLE "users" (
   "username" varchar PRIMARY KEY,
@@ -47,7 +47,7 @@ CREATE TABLE "roles" (
 
 CREATE TABLE "menus" (
   "id" bigserial PRIMARY KEY,
-  "parent" bigserial NOT NULL,
+  "parent" bigint NOT NULL,
   "title" varchar NOT NULL,
   "path" varchar,
   "name" varchar NOT NULL,
@@ -67,8 +67,8 @@ CREATE TABLE "menus" (
 
 CREATE TABLE "role_menus" (
   "id" bigserial PRIMARY KEY,
-  "role" bigserial NOT NULL,
-  "menu" bigserial NOT NULL,
+  "role" bigint NOT NULL,
+  "menu" bigint NOT NULL,
   "type" int NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
@@ -85,15 +85,15 @@ CREATE TABLE "apis" (
   "title" varchar NOT NULL,
   "url" varchar NOT NULL,
   "method" varchar NOT NULL,
-  "group" bigserial NOT NULL,
+  "groups" bigint NOT NULL,
   "remark" text,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "menu_apis" (
   "id" bigserial PRIMARY KEY,
-  "menu" bigserial NOT NULL,
-  "api" bigserial NOT NULL,
+  "menu" bigint NOT NULL,
+  "api" bigint NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
@@ -103,7 +103,7 @@ ALTER TABLE "role_menus" ADD FOREIGN KEY ("role") REFERENCES "roles" ("id");
 
 ALTER TABLE "role_menus" ADD FOREIGN KEY ("menu") REFERENCES "menus" ("id");
 
-ALTER TABLE "apis" ADD FOREIGN KEY ("group") REFERENCES "api_groups" ("id");
+ALTER TABLE "apis" ADD FOREIGN KEY ("groups") REFERENCES "api_groups" ("id");
 
 ALTER TABLE "menu_apis" ADD FOREIGN KEY ("menu") REFERENCES "menus" ("id");
 
@@ -205,7 +205,7 @@ COMMENT ON COLUMN "apis"."url" IS '接口地址';
 
 COMMENT ON COLUMN "apis"."method" IS '请求方式';
 
-COMMENT ON COLUMN "apis"."group" IS '分组';
+COMMENT ON COLUMN "apis"."groups" IS '分组';
 
 COMMENT ON COLUMN "apis"."remark" IS '备注';
 

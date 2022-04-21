@@ -11,7 +11,7 @@ import (
 
 const countMenusByParent = `-- name: CountMenusByParent :one
 SELECT count(*) FROM menus
-WHERE parent = ANY($1::bigserial[])
+WHERE parent = ANY($1::bigint[])
 `
 
 func (q *Queries) CountMenusByParent(ctx context.Context, dollar_1 []int64) (int64, error) {
@@ -103,7 +103,7 @@ func (q *Queries) CreateMenu(ctx context.Context, arg CreateMenuParams) (*Menu, 
 }
 
 const deleteMenu = `-- name: DeleteMenu :exec
-DELETE FROM menus WHERE id = ANY($1::bigserial[])
+DELETE FROM menus WHERE id = ANY($1::bigint[])
 `
 
 func (q *Queries) DeleteMenu(ctx context.Context, dollar_1 []int64) error {
