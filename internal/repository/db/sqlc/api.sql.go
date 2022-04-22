@@ -9,6 +9,91 @@ import (
 	"context"
 )
 
+const createApi = `-- name: CreateApi :exec
+INSERT INTO apis (
+    title, url, method, groups, remark
+) VALUES (
+    $1, $2, $3, $4, $5
+)
+`
+
+type CreateApiParams struct {
+	Title  string  `json:"title"`
+	Url    string  `json:"url"`
+	Method string  `json:"method"`
+	Groups int64   `json:"groups"`
+	Remark *string `json:"remark"`
+}
+
+func (q *Queries) CreateApi(ctx context.Context, arg CreateApiParams) error {
+	_, err := q.db.Exec(ctx, createApi,
+		arg.Title,
+		arg.Url,
+		arg.Method,
+		arg.Groups,
+		arg.Remark,
+	)
+	return err
+}
+
+const deleteApi = `-- name: DeleteApi :exec
+DELETE FROM apis
+WHERE id = ANY($1::bigserial[])
+`
+
+func (q *Queries) DeleteApi(ctx context.Context, id []int64) error {
+	_, err := q.db.Exec(ctx, deleteApi, id)
+	return err
+}
+
+const listApi = `-- name: ListApi :many
+SELECT id, title, url, method, groups, remark, created_at FROM apis
+WHERE groups = $1::bigint
+AND CASE WHEN $2::text = '' THEN 1=1 ELSE title like concat('%',$2::text,'%') END
+LIMIT $4::int
+OFFSET $3::int
+`
+
+type ListApiParams struct {
+	Groups     int64  `json:"groups"`
+	Title      string `json:"title"`
+	Pageoffset int32  `json:"pageoffset"`
+	Pagelimit  int32  `json:"pagelimit"`
+}
+
+func (q *Queries) ListApi(ctx context.Context, arg ListApiParams) ([]*Api, error) {
+	rows, err := q.db.Query(ctx, listApi,
+		arg.Groups,
+		arg.Title,
+		arg.Pageoffset,
+		arg.Pagelimit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*Api{}
+	for rows.Next() {
+		var i Api
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.Url,
+			&i.Method,
+			&i.Groups,
+			&i.Remark,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listApiByGroup = `-- name: ListApiByGroup :many
 SELECT id, title, url, method, groups, remark, created_at FROM apis
 WHERE groups = ANY($1::bigint[])
@@ -73,4 +158,31 @@ func (q *Queries) ListApiByIDs(ctx context.Context, dollar_1 []int64) ([]*Api, e
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateApi = `-- name: UpdateApi :exec
+UPDATE apis
+SET title = $1, url = $2, method = $3, groups = $4, remark = $5
+WHERE id = $6
+`
+
+type UpdateApiParams struct {
+	Title  string  `json:"title"`
+	Url    string  `json:"url"`
+	Method string  `json:"method"`
+	Groups int64   `json:"groups"`
+	Remark *string `json:"remark"`
+	ID     int64   `json:"id"`
+}
+
+func (q *Queries) UpdateApi(ctx context.Context, arg UpdateApiParams) error {
+	_, err := q.db.Exec(ctx, updateApi,
+		arg.Title,
+		arg.Url,
+		arg.Method,
+		arg.Groups,
+		arg.Remark,
+		arg.ID,
+	)
+	return err
 }

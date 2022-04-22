@@ -24,6 +24,36 @@ func (q *Queries) DeleteMenuApiByMenuAndApi(ctx context.Context, arg DeleteMenuA
 	return err
 }
 
+const listMenuApiByApi = `-- name: ListMenuApiByApi :many
+SELECT id, menu, api, created_at FROM menu_apis
+WHERE api = ANY($1::bigint[])
+`
+
+func (q *Queries) ListMenuApiByApi(ctx context.Context, api []int64) ([]*MenuApi, error) {
+	rows, err := q.db.Query(ctx, listMenuApiByApi, api)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*MenuApi{}
+	for rows.Next() {
+		var i MenuApi
+		if err := rows.Scan(
+			&i.ID,
+			&i.Menu,
+			&i.Api,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listMenuApiForApiByMenu = `-- name: ListMenuApiForApiByMenu :many
 SELECT api FROM menu_apis
 WHERE menu = $1

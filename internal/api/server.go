@@ -74,6 +74,13 @@ func (server *Server) setupRouter() {
 	apiGroup.PUT("/:id", server.updateApiGroup)
 	apiGroup.DELETE("/single/:id", server.deleteApiGroup)
 	apiGroup.DELETE("/batch", server.batchDeleteApiGroup)
+
+	api := sys.Group("/api")
+	api.GET("", server.listApi)
+	api.POST("", server.createApi)
+	api.PUT("/:id", server.updateApi)
+	api.DELETE("/single/:id", server.deleteApi)
+	api.DELETE("/batch/:id", server.batchDeleteApi)
 	server.router = router
 }
 

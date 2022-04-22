@@ -10,7 +10,9 @@ import (
 )
 
 type listApiGroupRequest struct {
-	Key string `json:"key"`
+	Key      string `json:"key"`
+	PageID   int32  `json:"page_id" validate:"required,min=1"`
+	PageSize int32  `json:"page_size" validate:"required,min=5,max=50"`
 }
 
 func (server *Server) listApiGroup(c *bytego.Ctx) error {
@@ -18,7 +20,12 @@ func (server *Server) listApiGroup(c *bytego.Ctx) error {
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse(err))
 	}
-	list, err := server.store.ListApiGroup(c.Context(), req.Key)
+	arg := db.ListApiGroupParams{
+		Key:        req.Key,
+		Pagelimit:  req.PageSize,
+		Pageoffset: (req.PageID - 1) * req.PageSize,
+	}
+	list, err := server.store.ListApiGroup(c.Context(), arg)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, errorResponse(err))
 	}

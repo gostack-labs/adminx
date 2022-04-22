@@ -41,11 +41,20 @@ func (q *Queries) DeleteApiGroup(ctx context.Context, dollar_1 []int64) error {
 
 const listApiGroup = `-- name: ListApiGroup :many
 SELECT id, name, remark, created_at FROM api_groups
-WHERE CASE WHEN $1::text = '' then 1=1 else name like concat('%',$1::text,'%') or remark like concat('%',$1::text,'%') end
+WHERE CASE WHEN $1::text = '' then 1=1 else name like concat('%',$1::text,'%') or remark like concat('%',$1::text,'%') end 
+ORDER BY id
+LIMIT $3::int 
+OFFSET $2::int
 `
 
-func (q *Queries) ListApiGroup(ctx context.Context, key string) ([]*ApiGroup, error) {
-	rows, err := q.db.Query(ctx, listApiGroup, key)
+type ListApiGroupParams struct {
+	Key        string `json:"key"`
+	Pageoffset int32  `json:"pageoffset"`
+	Pagelimit  int32  `json:"pagelimit"`
+}
+
+func (q *Queries) ListApiGroup(ctx context.Context, arg ListApiGroupParams) ([]*ApiGroup, error) {
+	rows, err := q.db.Query(ctx, listApiGroup, arg.Key, arg.Pageoffset, arg.Pagelimit)
 	if err != nil {
 		return nil, err
 	}
