@@ -33,3 +33,6 @@ mail:
 verifycode:
   keyprefix: adminx
   expiretime: 15
+casbin:
+  rabcModel: configs/rbac_model.conf
+  tableName: casbin_rule

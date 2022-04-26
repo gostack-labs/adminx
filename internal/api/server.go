@@ -80,7 +80,18 @@ func (server *Server) setupRouter() {
 	api.POST("", server.createApi)
 	api.PUT("/:id", server.updateApi)
 	api.DELETE("/single/:id", server.deleteApi)
-	api.DELETE("/batch/:id", server.batchDeleteApi)
+	api.DELETE("/batch", server.batchDeleteApi)
+
+	role := sys.Group("/role")
+	role.GET("", server.listRole)
+	role.POST("", server.createRole)
+	role.PUT("/:id", server.updateRole)
+	role.DELETE("/single/:id", server.deleteRole)
+	role.DELETE("/batch", server.batchDeleteRole)
+	role.POST("/permission/:id", server.updateRolePermission)
+	role.POST("/api/:id", server.roleApiPermission)
+	role.GET("/api/:id", server.getRoleApi)
+	role.GET("permission/:id", server.getRolePermission)
 	server.router = router
 }
 

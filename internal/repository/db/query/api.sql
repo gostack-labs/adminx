@@ -1,6 +1,6 @@
 -- name: ListApiByIDs :many
 SELECT * FROM apis
-WHERE id = ANY($1::bigint[]);
+WHERE id = ANY($1::bigserial[]);
 
 -- name: ListApiByGroup :many
 SELECT * FROM apis
@@ -28,3 +28,7 @@ WHERE id = $6;
 -- name: DeleteApi :exec
 DELETE FROM apis
 WHERE id = ANY(@id::bigserial[]);
+
+-- name: ListApiBatch :batchmany
+SELECT id FROM apis
+WHERE url = $1 AND method = $2;

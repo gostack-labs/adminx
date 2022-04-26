@@ -276,7 +276,11 @@ type menuBindApiRequest struct {
 }
 
 func (server *Server) mentBindApi(c *bytego.Ctx) error {
-	var req menuBindApiRequest
+	var (
+		req  menuBindApiRequest
+		errs []error
+	)
+
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse(err))
 	}
@@ -303,7 +307,16 @@ func (server *Server) mentBindApi(c *bytego.Ctx) error {
 			}
 		}
 		if len(args) > 0 {
-			_ = server.store.CreateMenuApi(c.Context(), args)
+			cma := server.store.CreateMenuApi(c.Context(), args)
+			defer cma.Close()
+			cma.Exec(func(i int, err error) {
+				errs[i] = err
+			})
+			for _, v := range errs {
+				if v != nil {
+					return c.JSON(http.StatusInternalServerError, errorResponse(v))
+				}
+			}
 		}
 	} else if req.Type == 0 {
 		arg := db.DeleteMenuApiByMenuAndApiParams{

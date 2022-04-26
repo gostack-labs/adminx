@@ -33,3 +33,12 @@ WHERE parent = ANY($1::bigint[]);
 -- name: ListMenuByParent :many
 SELECT * FROM menus
 WHERE parent = $1;
+
+-- name: ListMenuForParent :many
+-- ListMenuForParent 查询所有的目录
+SELECT distinct parent FROM menus
+WHERE parent != 0 and type = 2;
+
+-- name: ListMenuForParentIDByID :many
+SELECT id,parent FROM menus
+WHERE id = ANY($1::bigserial[]);

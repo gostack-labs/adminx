@@ -154,6 +154,62 @@ func (q *Queries) ListMenuByParent(ctx context.Context, parent int64) ([]*Menu, 
 	return items, nil
 }
 
+const listMenuForParent = `-- name: ListMenuForParent :many
+SELECT distinct parent FROM menus
+WHERE parent != 0 and type = 2
+`
+
+// ListMenuForParent 查询所有的目录
+func (q *Queries) ListMenuForParent(ctx context.Context) ([]int64, error) {
+	rows, err := q.db.Query(ctx, listMenuForParent)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []int64{}
+	for rows.Next() {
+		var parent int64
+		if err := rows.Scan(&parent); err != nil {
+			return nil, err
+		}
+		items = append(items, parent)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listMenuForParentIDByID = `-- name: ListMenuForParentIDByID :many
+SELECT id,parent FROM menus
+WHERE id = ANY($1::bigserial[])
+`
+
+type ListMenuForParentIDByIDRow struct {
+	ID     int64 `json:"id"`
+	Parent int64 `json:"parent"`
+}
+
+func (q *Queries) ListMenuForParentIDByID(ctx context.Context, dollar_1 []int64) ([]*ListMenuForParentIDByIDRow, error) {
+	rows, err := q.db.Query(ctx, listMenuForParentIDByID, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*ListMenuForParentIDByIDRow{}
+	for rows.Next() {
+		var i ListMenuForParentIDByIDRow
+		if err := rows.Scan(&i.ID, &i.Parent); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listMenusByType = `-- name: ListMenusByType :many
 SELECT id, parent, title, path, name, component, redirect, hyperlink, is_hide, is_keep_alive, is_affix, is_iframe, auth, icon, type, sort, created_at FROM menus
 where type = ANY($1::int[])

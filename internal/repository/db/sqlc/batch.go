@@ -58,3 +58,108 @@ func (b *CreateMenuApiBatchResults) Exec(f func(int, error)) {
 func (b *CreateMenuApiBatchResults) Close() error {
 	return b.br.Close()
 }
+
+const createRoleMenu = `-- name: CreateRoleMenu :batchexec
+INSERT INTO role_menus (
+    role, menu, type
+) VALUES (
+    $1, $2, $3
+)
+`
+
+type CreateRoleMenuBatchResults struct {
+	br  pgx.BatchResults
+	ind int
+}
+
+type CreateRoleMenuParams struct {
+	Role int64 `json:"role"`
+	Menu int64 `json:"menu"`
+	Type int32 `json:"type"`
+}
+
+func (q *Queries) CreateRoleMenu(ctx context.Context, arg []CreateRoleMenuParams) *CreateRoleMenuBatchResults {
+	batch := &pgx.Batch{}
+	for _, a := range arg {
+		vals := []interface{}{
+			a.Role,
+			a.Menu,
+			a.Type,
+		}
+		batch.Queue(createRoleMenu, vals...)
+	}
+	br := q.db.SendBatch(ctx, batch)
+	return &CreateRoleMenuBatchResults{br, 0}
+}
+
+func (b *CreateRoleMenuBatchResults) Exec(f func(int, error)) {
+	for {
+		_, err := b.br.Exec()
+		if err != nil && (err.Error() == "no result" || err.Error() == "batch already closed") {
+			break
+		}
+		if f != nil {
+			f(b.ind, err)
+		}
+		b.ind++
+	}
+}
+
+func (b *CreateRoleMenuBatchResults) Close() error {
+	return b.br.Close()
+}
+
+const listApiBatch = `-- name: ListApiBatch :batchmany
+SELECT id FROM apis
+WHERE url = $1 AND method = $2
+`
+
+type ListApiBatchBatchResults struct {
+	br  pgx.BatchResults
+	ind int
+}
+
+type ListApiBatchParams struct {
+	Url    string `json:"url"`
+	Method string `json:"method"`
+}
+
+func (q *Queries) ListApiBatch(ctx context.Context, arg []ListApiBatchParams) *ListApiBatchBatchResults {
+	batch := &pgx.Batch{}
+	for _, a := range arg {
+		vals := []interface{}{
+			a.Url,
+			a.Method,
+		}
+		batch.Queue(listApiBatch, vals...)
+	}
+	br := q.db.SendBatch(ctx, batch)
+	return &ListApiBatchBatchResults{br, 0}
+}
+
+func (b *ListApiBatchBatchResults) Query(f func(int, []int64, error)) {
+	for {
+		rows, err := b.br.Query()
+		if err != nil && (err.Error() == "no result" || err.Error() == "batch already closed") {
+			break
+		}
+		defer rows.Close()
+		items := []int64{}
+		for rows.Next() {
+			var id int64
+			if err := rows.Scan(&id); err != nil {
+				break
+			}
+			items = append(items, id)
+		}
+
+		if f != nil {
+			f(b.ind, items, rows.Err())
+		}
+		b.ind++
+	}
+}
+
+func (b *ListApiBatchBatchResults) Close() error {
+	return b.br.Close()
+}

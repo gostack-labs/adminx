@@ -1,6 +1,6 @@
 -- SQL dump generated using DBML (dbml-lang.org)
 -- Database: PostgreSQL
--- Generated at: 2022-04-22T07:36:11.694Z
+-- Generated at: 2022-04-24T02:10:43.251Z
 
 CREATE TABLE "users" (
   "username" varchar PRIMARY KEY,
@@ -37,9 +37,9 @@ CREATE TABLE "casbin_rule" (
 
 CREATE TABLE "roles" (
   "id" bigserial PRIMARY KEY,
-  "name" varchar NOT NULL,
+  "name" varchar UNIQUE NOT NULL,
   "is_disable" boolean NOT NULL DEFAULT false,
-  "key" varchar NOT NULL,
+  "key" varchar UNIQUE NOT NULL,
   "sort" int NOT NULL DEFAULT 1,
   "remark" varchar,
   "created_at" timestamptz NOT NULL DEFAULT (now())

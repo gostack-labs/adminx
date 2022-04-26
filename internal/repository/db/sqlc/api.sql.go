@@ -129,7 +129,7 @@ func (q *Queries) ListApiByGroup(ctx context.Context, dollar_1 []int64) ([]*Api,
 
 const listApiByIDs = `-- name: ListApiByIDs :many
 SELECT id, title, url, method, groups, remark, created_at FROM apis
-WHERE id = ANY($1::bigint[])
+WHERE id = ANY($1::bigserial[])
 `
 
 func (q *Queries) ListApiByIDs(ctx context.Context, dollar_1 []int64) ([]*Api, error) {

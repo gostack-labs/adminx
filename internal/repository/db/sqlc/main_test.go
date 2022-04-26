@@ -11,7 +11,6 @@ import (
 )
 
 var testQueries *Queries
-var testDB *pgx.Conn
 
 func TestMain(m *testing.M) {
 	configs.LoadConfig()

@@ -42,9 +42,9 @@ Table casbin_rule{
 
 Table roles as R{
     id bigserial [pk]
-    name varchar [not null,note: '名称']
+    name varchar [not null,unique,note: '名称']
     is_disable boolean [not null,default:false,note:'是否禁用']
-    key varchar [not null,note:'标识']
+    key varchar [not null,unique,note:'标识']
     sort int [not null,default:1,note:'排序']
     remark varchar [note:'备注']
     created_at timestamptz [not null,default:`now()`]

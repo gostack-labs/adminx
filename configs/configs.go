@@ -26,6 +26,7 @@ type config struct {
 	Token      token
 	Mail       mail
 	VerifyCode verifycode
+	Casbin     casbin
 }
 
 type app struct {
@@ -76,6 +77,12 @@ type mail struct {
 type verifycode struct {
 	KeyPrefix  string
 	ExpireTime int64
+}
+
+type casbin struct {
+	RbacModel    string
+	TableName    string
+	IntervalTime time.Duration
 }
 
 var once sync.Once
