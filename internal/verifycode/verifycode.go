@@ -50,6 +50,10 @@ func (vc *VerifyCode) SendEmail(email string) error {
 	return err
 }
 
+func (vc *VerifyCode) CheckAnswer(key string, answer string) bool {
+	return vc.Store.Check(key, answer, false)
+}
+
 func (vc *VerifyCode) generateVerifyCode(key string) string {
 	code := cast.ToString(gofakeit.Number(100000, 999999))
 	err := vc.Store.Set(key, code)

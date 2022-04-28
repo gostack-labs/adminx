@@ -2,8 +2,6 @@ package verifycode
 
 import (
 	"context"
-	"log"
-	"time"
 
 	"github.com/gostack-labs/adminx/configs"
 	"github.com/gostack-labs/adminx/internal/repository/redis"
@@ -28,7 +26,7 @@ type Store interface {
 
 func (v *redisStore) Set(key string, value string) error {
 
-	expireTime := time.Minute * time.Duration(configs.Config.VerifyCode.ExpireTime)
+	expireTime := configs.Config.VerifyCode.ExpireTime
 
 	return v.cache.Set(context.Background(), configs.Config.VerifyCode.KeyPrefix+key, value, expireTime)
 }
@@ -37,7 +35,7 @@ func (v *redisStore) Get(key string, clear bool) (string, error) {
 	key = configs.Config.VerifyCode.KeyPrefix + key
 	val, err := v.cache.Get(context.Background(), key)
 	if err != nil {
-		log.Fatal("get verifycode err:", err)
+		//log.Fatal("get verifycode err:", err)
 		return "", err
 	}
 	if clear {

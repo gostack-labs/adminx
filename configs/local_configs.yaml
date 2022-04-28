@@ -25,14 +25,14 @@ token:
   accesstokenduration: 15m
   refreshtokenduration: 24h
 mail:
-  host: 
+  host: smtp.yeah.net
   port: 465
-  user: 
-  pass: 
+  user: zhenying214@yeah.net
+  pass: VISKINHUFBCRQVFA
   to:
 verifycode:
   keyprefix: adminx
-  expiretime: 15
+  expiretime: 10m
 casbin:
   rabcModel: configs/rbac_model.conf
   tableName: casbin_rule

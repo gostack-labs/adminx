@@ -76,7 +76,7 @@ type mail struct {
 
 type verifycode struct {
 	KeyPrefix  string
-	ExpireTime int64
+	ExpireTime time.Duration
 }
 
 type casbin struct {

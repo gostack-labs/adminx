@@ -11,6 +11,7 @@ import (
 	"github.com/gostack-labs/adminx/internal/verifycode"
 	"github.com/gostack-labs/bytego"
 	"github.com/jackc/pgconn"
+	"github.com/jackc/pgx/v4"
 )
 
 type SignupRequest struct {
@@ -54,11 +55,16 @@ func (server *Server) signup(c *bytego.Ctx) error {
 	}
 
 	if strings.TrimSpace(req.Email) != "" {
+		if ok := verifycode.NewVerifyCode().CheckAnswer(req.Email, req.VerifyCode); !ok {
+			return c.JSON(http.StatusBadRequest, errorResponse(errors.New("验证码输入错误或已过期")))
+		}
 		u, err := server.store.GetUserByEmail(c.Context(), req.Email)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, errorResponse(err))
+			if err != pgx.ErrNoRows {
+				return c.JSON(http.StatusInternalServerError, errorResponse(err))
+			}
 		}
-		if u != nil {
+		if utils.IsNil(u) {
 			return c.JSON(http.StatusForbidden, bytego.Map{"error": "该邮箱已存在！"})
 		}
 	}
