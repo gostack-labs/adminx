@@ -8,12 +8,14 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gostack-labs/adminx/configs"
+	"github.com/gostack-labs/adminx/internal/middleware/auth"
 	db "github.com/gostack-labs/adminx/internal/repository/db/sqlc"
 	"github.com/gostack-labs/adminx/internal/repository/redis"
 	"github.com/gostack-labs/adminx/pkg/token"
 	v "github.com/gostack-labs/adminx/pkg/validate"
 	"github.com/gostack-labs/bytego"
 	"github.com/gostack-labs/bytego/middleware/logger"
+	"github.com/gostack-labs/bytego/middleware/recovery"
 )
 
 // Server serves HTTP requests for our adminx service.
@@ -44,6 +46,7 @@ func (server *Server) setupRouter() {
 	router := bytego.New()
 	router.Debug(true)
 	router.Use(logger.New())
+	router.Use(recovery.New())
 	//router.Validator(validator.New().Struct)
 	if err := v.InitTrans(router, "zh"); err != nil {
 		log.Fatal("translator err:", err)
@@ -57,7 +60,7 @@ func (server *Server) setupRouter() {
 	router.POST("/signin", server.logginUser)
 	router.POST("/tokens/renew_access", server.renewAccessToken)
 
-	sys := router.Group("/sys")
+	sys := router.Group("/sys", auth.AuthMiddleware(server.tokenMaker))
 	menu := sys.Group("/menu")
 	menu.GET("/tree", server.menuTree)
 	menu.POST("", server.createMenu)
@@ -92,6 +95,14 @@ func (server *Server) setupRouter() {
 	role.POST("/api/:id", server.roleApiPermission)
 	role.GET("/api/:id", server.getRoleApi)
 	role.GET("permission/:id", server.getRolePermission)
+
+	user := sys.Group("/user")
+	user.GET("", server.listUser)
+	user.GET("/info", server.userInfo)
+	user.GET("/info/:username", server.userInfoByID)
+	user.POST("", server.createUser)
+	user.PUT("/:username", server.updateUser)
+	user.DELETE("/:username", server.deleteUser)
 	server.router = router
 }
 

@@ -25,3 +25,7 @@ WHERE role = $1 and menu <> ANY(@excludeMenus::bigint[]);
 -- name: ListRoleMenuForButton :many
 SELECT menu FROM role_menus
 WHERE role = $1 and type = 2;
+
+-- name: ListRoleMenuForMenuByRoles :many
+SELECT menu from role_menus
+WHERE role = ANY(@roles::bigint[]) AND type = @type;

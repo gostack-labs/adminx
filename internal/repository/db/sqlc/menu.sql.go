@@ -14,8 +14,8 @@ SELECT count(*) FROM menus
 WHERE parent = ANY($1::bigint[])
 `
 
-func (q *Queries) CountMenusByParent(ctx context.Context, dollar_1 []int64) (int64, error) {
-	row := q.db.QueryRow(ctx, countMenusByParent, dollar_1)
+func (q *Queries) CountMenusByParent(ctx context.Context, parents []int64) (int64, error) {
+	row := q.db.QueryRow(ctx, countMenusByParent, parents)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -106,8 +106,8 @@ const deleteMenu = `-- name: DeleteMenu :exec
 DELETE FROM menus WHERE id = ANY($1::bigint[])
 `
 
-func (q *Queries) DeleteMenu(ctx context.Context, dollar_1 []int64) error {
-	_, err := q.db.Exec(ctx, deleteMenu, dollar_1)
+func (q *Queries) DeleteMenu(ctx context.Context, ids []int64) error {
+	_, err := q.db.Exec(ctx, deleteMenu, ids)
 	return err
 }
 
@@ -154,6 +154,31 @@ func (q *Queries) ListMenuByParent(ctx context.Context, parent int64) ([]*Menu, 
 	return items, nil
 }
 
+const listMenuForAuthByIDs = `-- name: ListMenuForAuthByIDs :many
+SELECT DISTINCT UNNEST(auth) from menus
+WHERE id = ANY($1::bigserial[])
+`
+
+func (q *Queries) ListMenuForAuthByIDs(ctx context.Context, ids []int64) ([]interface{}, error) {
+	rows, err := q.db.Query(ctx, listMenuForAuthByIDs, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []interface{}{}
+	for rows.Next() {
+		var unnest interface{}
+		if err := rows.Scan(&unnest); err != nil {
+			return nil, err
+		}
+		items = append(items, unnest)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listMenuForParent = `-- name: ListMenuForParent :many
 SELECT distinct parent FROM menus
 WHERE parent != 0 and type = 2
@@ -190,8 +215,8 @@ type ListMenuForParentIDByIDRow struct {
 	Parent int64 `json:"parent"`
 }
 
-func (q *Queries) ListMenuForParentIDByID(ctx context.Context, dollar_1 []int64) ([]*ListMenuForParentIDByIDRow, error) {
-	rows, err := q.db.Query(ctx, listMenuForParentIDByID, dollar_1)
+func (q *Queries) ListMenuForParentIDByID(ctx context.Context, ids []int64) ([]*ListMenuForParentIDByIDRow, error) {
+	rows, err := q.db.Query(ctx, listMenuForParentIDByID, ids)
 	if err != nil {
 		return nil, err
 	}
@@ -215,8 +240,8 @@ SELECT id, parent, title, path, name, component, redirect, hyperlink, is_hide, i
 where type = ANY($1::int[])
 `
 
-func (q *Queries) ListMenusByType(ctx context.Context, dollar_1 []int32) ([]*Menu, error) {
-	rows, err := q.db.Query(ctx, listMenusByType, dollar_1)
+func (q *Queries) ListMenusByType(ctx context.Context, types []int32) ([]*Menu, error) {
+	rows, err := q.db.Query(ctx, listMenusByType, types)
 	if err != nil {
 		return nil, err
 	}

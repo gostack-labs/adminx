@@ -139,6 +139,31 @@ func (q *Queries) ListRoleByID(ctx context.Context, id int64) (*Role, error) {
 	return &i, err
 }
 
+const listRoleForIDByKeys = `-- name: ListRoleForIDByKeys :many
+SELECT id FROM roles
+WHERE key = ANY($1::text[])
+`
+
+func (q *Queries) ListRoleForIDByKeys(ctx context.Context, keys []string) ([]int64, error) {
+	rows, err := q.db.Query(ctx, listRoleForIDByKeys, keys)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []int64{}
+	for rows.Next() {
+		var id int64
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateRole = `-- name: UpdateRole :exec
 UPDATE roles
 SET name = $1, is_disable = $2, key = $3, sort = $4, remark = $5

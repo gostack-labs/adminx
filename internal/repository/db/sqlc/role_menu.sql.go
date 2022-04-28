@@ -116,3 +116,33 @@ func (q *Queries) ListRoleMenuForMenu(ctx context.Context, arg ListRoleMenuForMe
 	}
 	return items, nil
 }
+
+const listRoleMenuForMenuByRoles = `-- name: ListRoleMenuForMenuByRoles :many
+SELECT menu from role_menus
+WHERE role = ANY($1::bigint[]) AND type = $2
+`
+
+type ListRoleMenuForMenuByRolesParams struct {
+	Roles []int64 `json:"roles"`
+	Type  int32   `json:"type"`
+}
+
+func (q *Queries) ListRoleMenuForMenuByRoles(ctx context.Context, arg ListRoleMenuForMenuByRolesParams) ([]int64, error) {
+	rows, err := q.db.Query(ctx, listRoleMenuForMenuByRoles, arg.Roles, arg.Type)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []int64{}
+	for rows.Next() {
+		var menu int64
+		if err := rows.Scan(&menu); err != nil {
+			return nil, err
+		}
+		items = append(items, menu)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

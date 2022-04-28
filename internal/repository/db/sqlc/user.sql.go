@@ -50,6 +50,16 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (*User, 
 	return &i, err
 }
 
+const deleteUser = `-- name: DeleteUser :exec
+DELETE FROM users
+WHERE username = $1
+`
+
+func (q *Queries) DeleteUser(ctx context.Context, username string) error {
+	_, err := q.db.Exec(ctx, deleteUser, username)
+	return err
+}
+
 const getUser = `-- name: GetUser :one
 SELECT username, hashed_password, full_name, email, phone, password_change_at, created_at FROM users
 WHERE (username = $1 or email = $1 or phone = $1) LIMIT 1
@@ -108,4 +118,81 @@ func (q *Queries) GetUserByPhone(ctx context.Context, phone string) (*User, erro
 		&i.CreatedAt,
 	)
 	return &i, err
+}
+
+const listUser = `-- name: ListUser :many
+SELECT username, hashed_password, full_name, email, phone, password_change_at, created_at FROM users
+WHERE CASE WHEN $1::text = '' THEN 1=1 ELSE name like concat('%',$1::text,'%') END
+AND CASE WHEN $2::text = '' THEN 1=1 ELSE key like concat('%',$2::text,'%') END
+AND CASE WHEN $3::text = '' THEN 1=1 ELSE key like concat('%',$3::text,'%') END
+AND CASE WHEN $4::text = '' THEN 1=1 ELSE key like concat('%',$4::text,'%') END
+LIMIT $6::int
+OFFSET $5::int
+`
+
+type ListUserParams struct {
+	Username   string `json:"username"`
+	Fullname   string `json:"fullname"`
+	Email      string `json:"email"`
+	Phone      string `json:"phone"`
+	Pageoffset int32  `json:"pageoffset"`
+	Pagelimit  int32  `json:"pagelimit"`
+}
+
+func (q *Queries) ListUser(ctx context.Context, arg ListUserParams) ([]*User, error) {
+	rows, err := q.db.Query(ctx, listUser,
+		arg.Username,
+		arg.Fullname,
+		arg.Email,
+		arg.Phone,
+		arg.Pageoffset,
+		arg.Pagelimit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*User{}
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.Username,
+			&i.HashedPassword,
+			&i.FullName,
+			&i.Email,
+			&i.Phone,
+			&i.PasswordChangeAt,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateUser = `-- name: UpdateUser :exec
+UPDATE users
+SET full_name = $1, email = $2, phone = $3
+WHERE username = $4::text
+`
+
+type UpdateUserParams struct {
+	FullName string `json:"full_name"`
+	Email    string `json:"email"`
+	Phone    string `json:"phone"`
+	Username string `json:"username"`
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
+	_, err := q.db.Exec(ctx, updateUser,
+		arg.FullName,
+		arg.Email,
+		arg.Phone,
+		arg.Username,
+	)
+	return err
 }

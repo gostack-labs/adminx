@@ -46,7 +46,7 @@ func InitTrans(app *bytego.App, locale string) error {
 		}
 		return name
 	})
-	app.Validator(v.Struct)
+	app.SetValidator(v.Struct)
 	return err
 }
 

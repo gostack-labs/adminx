@@ -28,3 +28,7 @@ WHERE id = ANY(@id::bigserial[]);
 -- name: ListRoleByID :one
 SELECT * FROM roles
 WHERE id = $1;
+
+-- name: ListRoleForIDByKeys :many
+SELECT id FROM roles
+WHERE key = ANY(@keys::text[]);

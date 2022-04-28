@@ -1,6 +1,6 @@
 -- name: ListMenusByType :many
 SELECT * FROM menus
-where type = ANY($1::int[]);
+where type = ANY(@types::int[]);
 
 -- name: CreateMenu :one
 INSERT INTO menus (
@@ -24,11 +24,11 @@ INSERT INTO menus (
 ) RETURNING *;
 
 -- name: DeleteMenu :exec
-DELETE FROM menus WHERE id = ANY($1::bigint[]);
+DELETE FROM menus WHERE id = ANY(@ids::bigint[]);
 
 -- name: CountMenusByParent :one
 SELECT count(*) FROM menus
-WHERE parent = ANY($1::bigint[]);
+WHERE parent = ANY(@parents::bigint[]);
 
 -- name: ListMenuByParent :many
 SELECT * FROM menus
@@ -41,4 +41,8 @@ WHERE parent != 0 and type = 2;
 
 -- name: ListMenuForParentIDByID :many
 SELECT id,parent FROM menus
-WHERE id = ANY($1::bigserial[]);
+WHERE id = ANY(@ids::bigserial[]);
+
+-- name: ListMenuForAuthByIDs :many
+SELECT DISTINCT UNNEST(auth) from menus
+WHERE id = ANY(@ids::bigserial[]);

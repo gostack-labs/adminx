@@ -26,7 +26,7 @@ func CheckPermMiddleware() bytego.HandlerFunc {
 	return func(c *bytego.Ctx) error {
 		obj := c.Request.URL.Path
 
-		act := c.Method
+		act := c.Request.Method
 
 		sub, exist := c.Get("username")
 		if !exist {
