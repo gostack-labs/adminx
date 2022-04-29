@@ -89,7 +89,7 @@ func (m *MenuTree) GetMenuTree() []*MenuValue {
 				Auth:        menu.Auth,
 				Icon:        menu.Icon,
 			},
-			Children: nil,
+			Children: []*MenuValue{},
 		}
 		menuValueList = append(menuValueList, menuValue)
 		if menu.Parent == 0 {
@@ -135,7 +135,7 @@ func (server *Server) menuTree(c *bytego.Ctx) error {
 
 type createMenuRequest struct {
 	// 父级
-	Parent int64 `json:"parent" validate:"required,numeric"`
+	Parent *int64 `json:"parent" validate:"required,numeric"`
 	// 标题
 	Title string `json:"title" validate:"required"`
 	// 路径
@@ -167,14 +167,14 @@ type createMenuRequest struct {
 }
 
 func (server *Server) createMenu(c *bytego.Ctx) error {
-	var req *createMenuRequest
+	var req createMenuRequest
 
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse(err))
 	}
 
 	arg := db.CreateMenuParams{
-		Parent:      req.Parent,
+		Parent:      *req.Parent,
 		Title:       req.Title,
 		Path:        req.Path,
 		Name:        req.Name,

@@ -100,9 +100,9 @@ Table api_groups as AG{
 
 Table apis as A{
     id bigserial [pk]
-    title varchar [not null,unique,note:'标题']
-    url varchar [not null,unique,note:'接口地址']
-    method varchar [not null,unique,note:'请求方式']
+    title varchar [not null,note:'标题']
+    url varchar [not null,note:'接口地址']
+    method varchar [not null,note:'请求方式']
     groups bigint [not null,ref: > AG.id,note:'分组']
     remark text [note:'备注']
     created_at timestamptz [not null,default:`now()`]

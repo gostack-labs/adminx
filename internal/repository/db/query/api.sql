@@ -32,3 +32,8 @@ WHERE id = ANY(@id::bigserial[]);
 -- name: ListApiBatch :batchmany
 SELECT id FROM apis
 WHERE url = $1 AND method = $2;
+
+-- name: CountApiByMUT :one
+-- CountApiByMUT 根据 标题 url method 查询数量
+SELECT count(*) FROM apis
+WHERE title = $1 AND url = $2 AND method = $3;

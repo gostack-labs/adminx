@@ -24,3 +24,7 @@ WHERE id = @id;
 DELETE FROM api_groups
 WHERE id = ANY($1::bigint[]);
 
+-- name: GetGroupByID :one
+SELECT * FROM api_groups
+WHERE id = $1;
+

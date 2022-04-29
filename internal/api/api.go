@@ -5,13 +5,15 @@ import (
 	"net/http"
 
 	db "github.com/gostack-labs/adminx/internal/repository/db/sqlc"
+	"github.com/gostack-labs/adminx/internal/utils"
 	"github.com/gostack-labs/bytego"
 	"github.com/jackc/pgconn"
+	"github.com/jackc/pgx/v4"
 )
 
 type listApiRequest struct {
 	Title    string `json:"title"`
-	Groups   int64  `json:"groups"`
+	Groups   int64  `json:"groups" validate:"required"`
 	PageID   int32  `json:"page_id" validate:"required,min=1"`
 	PageSize int32  `json:"page_size" validate:"required,min=5,max=50"`
 }
@@ -47,7 +49,28 @@ func (server *Server) createApi(c *bytego.Ctx) error {
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse(err))
 	}
-
+	group, err := server.store.GetGroupByID(c.Context(), req.Groups)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return c.JSON(http.StatusNotFound, errorResponse(err))
+		}
+		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+	if utils.IsNil(group) {
+		return c.JSON(http.StatusNotFound, errorResponse(errors.New("group not found")))
+	}
+	countArg := db.CountApiByMUTParams{
+		Title:  req.Title,
+		Url:    req.Url,
+		Method: req.Method,
+	}
+	count, err := server.store.CountApiByMUT(c.Context(), countArg)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+	if count > 0 {
+		return c.JSON(http.StatusFound, errorResponse(errors.New("titile url method already exist")))
+	}
 	arg := db.CreateApiParams{
 		Title:  req.Title,
 		Url:    req.Url,
@@ -55,7 +78,7 @@ func (server *Server) createApi(c *bytego.Ctx) error {
 		Groups: req.Groups,
 		Remark: &req.Remark,
 	}
-	err := server.store.CreateApi(c.Context(), arg)
+	err = server.store.CreateApi(c.Context(), arg)
 	if err != nil {
 		var pgxerr *pgconn.PgError
 		if errors.As(err, &pgxerr) {
@@ -82,6 +105,28 @@ func (server *Server) updateApi(c *bytego.Ctx) error {
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse(err))
 	}
+	group, err := server.store.GetGroupByID(c.Context(), req.Groups)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return c.JSON(http.StatusNotFound, errorResponse(err))
+		}
+		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+	if utils.IsNil(group) {
+		return c.JSON(http.StatusNotFound, errorResponse(errors.New("group not found")))
+	}
+	countArg := db.CountApiByMUTParams{
+		Title:  req.Title,
+		Url:    req.Url,
+		Method: req.Method,
+	}
+	count, err := server.store.CountApiByMUT(c.Context(), countArg)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+	if count > 0 {
+		return c.JSON(http.StatusFound, errorResponse(errors.New("titile url method already exist")))
+	}
 	arg := db.UpdateApiParams{
 		ID:     req.ID,
 		Title:  req.Title,
@@ -90,7 +135,7 @@ func (server *Server) updateApi(c *bytego.Ctx) error {
 		Groups: req.Groups,
 		Remark: &req.Remark,
 	}
-	err := server.store.UpdateApi(c.Context(), arg)
+	err = server.store.UpdateApi(c.Context(), arg)
 	if err != nil {
 		var pgxerr *pgconn.PgError
 		if errors.As(err, &pgxerr) {

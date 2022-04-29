@@ -9,6 +9,7 @@ import (
 	db "github.com/gostack-labs/adminx/internal/repository/db/sqlc"
 	"github.com/gostack-labs/adminx/internal/utils"
 	"github.com/gostack-labs/bytego"
+	"github.com/jackc/pgx/v4"
 )
 
 type logginUserRequest struct {
@@ -32,6 +33,9 @@ func (server *Server) logginUser(c *bytego.Ctx) error {
 	}
 	user, err := server.store.GetUser(c.Context(), req.Username)
 	if err != nil {
+		if err == pgx.ErrNoRows {
+			return c.JSON(http.StatusNotFound, errorResponse(err))
+		}
 		return c.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
 

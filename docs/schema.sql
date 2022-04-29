@@ -1,6 +1,6 @@
 -- SQL dump generated using DBML (dbml-lang.org)
 -- Database: PostgreSQL
--- Generated at: 2022-04-24T02:10:43.251Z
+-- Generated at: 2022-04-29T04:29:13.839Z
 
 CREATE TABLE "users" (
   "username" varchar PRIMARY KEY,
@@ -82,9 +82,9 @@ CREATE TABLE "api_groups" (
 
 CREATE TABLE "apis" (
   "id" bigserial PRIMARY KEY,
-  "title" varchar UNIQUE NOT NULL,
-  "url" varchar UNIQUE NOT NULL,
-  "method" varchar UNIQUE NOT NULL,
+  "title" varchar NOT NULL,
+  "url" varchar NOT NULL,
+  "method" varchar NOT NULL,
   "groups" bigint NOT NULL,
   "remark" text,
   "created_at" timestamptz NOT NULL DEFAULT (now())

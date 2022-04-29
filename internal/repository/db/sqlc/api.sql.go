@@ -9,6 +9,25 @@ import (
 	"context"
 )
 
+const countApiByMUT = `-- name: CountApiByMUT :one
+SELECT count(*) FROM apis
+WHERE title = $1 AND url = $2 AND method = $3
+`
+
+type CountApiByMUTParams struct {
+	Title  string `json:"title"`
+	Url    string `json:"url"`
+	Method string `json:"method"`
+}
+
+// CountApiByMUT 根据 标题 url method 查询数量
+func (q *Queries) CountApiByMUT(ctx context.Context, arg CountApiByMUTParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countApiByMUT, arg.Title, arg.Url, arg.Method)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createApi = `-- name: CreateApi :exec
 INSERT INTO apis (
     title, url, method, groups, remark

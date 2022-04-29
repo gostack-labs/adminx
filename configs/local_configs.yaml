@@ -22,7 +22,7 @@ server:
   wirtetimeout: 1s
 token:
   key: 12345678901234567890123456789012
-  accesstokenduration: 15m
+  accesstokenduration: 15h
   refreshtokenduration: 24h
 mail:
   host: smtp.yeah.net
@@ -32,7 +32,7 @@ mail:
   to:
 verifycode:
   keyprefix: adminx
-  expiretime: 10m
+  expiretime: 10h
 casbin:
   rabcModel: configs/rbac_model.conf
   tableName: casbin_rule

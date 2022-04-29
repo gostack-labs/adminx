@@ -39,6 +39,23 @@ func (q *Queries) DeleteApiGroup(ctx context.Context, dollar_1 []int64) error {
 	return err
 }
 
+const getGroupByID = `-- name: GetGroupByID :one
+SELECT id, name, remark, created_at FROM api_groups
+WHERE id = $1
+`
+
+func (q *Queries) GetGroupByID(ctx context.Context, id int64) (*ApiGroup, error) {
+	row := q.db.QueryRow(ctx, getGroupByID, id)
+	var i ApiGroup
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Remark,
+		&i.CreatedAt,
+	)
+	return &i, err
+}
+
 const listApiGroup = `-- name: ListApiGroup :many
 SELECT id, name, remark, created_at FROM api_groups
 WHERE CASE WHEN $1::text = '' then 1=1 else name like concat('%',$1::text,'%') or remark like concat('%',$1::text,'%') end 
