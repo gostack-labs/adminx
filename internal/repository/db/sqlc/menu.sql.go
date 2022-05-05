@@ -111,6 +111,36 @@ func (q *Queries) DeleteMenu(ctx context.Context, ids []int64) error {
 	return err
 }
 
+const getMenuByID = `-- name: GetMenuByID :one
+SELECT id, parent, title, path, name, component, redirect, hyperlink, is_hide, is_keep_alive, is_affix, is_iframe, auth, icon, type, sort, created_at FROM menus
+WHERE id = $1
+`
+
+func (q *Queries) GetMenuByID(ctx context.Context, id int64) (*Menu, error) {
+	row := q.db.QueryRow(ctx, getMenuByID, id)
+	var i Menu
+	err := row.Scan(
+		&i.ID,
+		&i.Parent,
+		&i.Title,
+		&i.Path,
+		&i.Name,
+		&i.Component,
+		&i.Redirect,
+		&i.Hyperlink,
+		&i.IsHide,
+		&i.IsKeepAlive,
+		&i.IsAffix,
+		&i.IsIframe,
+		&i.Auth,
+		&i.Icon,
+		&i.Type,
+		&i.Sort,
+		&i.CreatedAt,
+	)
+	return &i, err
+}
+
 const listMenuByParent = `-- name: ListMenuByParent :many
 SELECT id, parent, title, path, name, component, redirect, hyperlink, is_hide, is_keep_alive, is_affix, is_iframe, auth, icon, type, sort, created_at FROM menus
 WHERE parent = $1
@@ -276,4 +306,71 @@ func (q *Queries) ListMenusByType(ctx context.Context, types []int32) ([]*Menu, 
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateMenu = `-- name: UpdateMenu :one
+UPDATE menus
+SET title = $1, path = $2, name = $3, component = $4,
+redirect = $5, hyperlink = $6, is_hide = $7, is_keep_alive = $8,
+is_affix = $9, is_iframe = $10, auth = $11, icon = $12,
+sort = $13
+WHERE id = $14
+RETURNING id, parent, title, path, name, component, redirect, hyperlink, is_hide, is_keep_alive, is_affix, is_iframe, auth, icon, type, sort, created_at
+`
+
+type UpdateMenuParams struct {
+	Title       string   `json:"title"`
+	Path        *string  `json:"path"`
+	Name        string   `json:"name"`
+	Component   *string  `json:"component"`
+	Redirect    *string  `json:"redirect"`
+	Hyperlink   *string  `json:"hyperlink"`
+	IsHide      bool     `json:"is_hide"`
+	IsKeepAlive bool     `json:"is_keep_alive"`
+	IsAffix     bool     `json:"is_affix"`
+	IsIframe    bool     `json:"is_iframe"`
+	Auth        []string `json:"auth"`
+	Icon        *string  `json:"icon"`
+	Sort        int32    `json:"sort"`
+	ID          int64    `json:"id"`
+}
+
+func (q *Queries) UpdateMenu(ctx context.Context, arg UpdateMenuParams) (*Menu, error) {
+	row := q.db.QueryRow(ctx, updateMenu,
+		arg.Title,
+		arg.Path,
+		arg.Name,
+		arg.Component,
+		arg.Redirect,
+		arg.Hyperlink,
+		arg.IsHide,
+		arg.IsKeepAlive,
+		arg.IsAffix,
+		arg.IsIframe,
+		arg.Auth,
+		arg.Icon,
+		arg.Sort,
+		arg.ID,
+	)
+	var i Menu
+	err := row.Scan(
+		&i.ID,
+		&i.Parent,
+		&i.Title,
+		&i.Path,
+		&i.Name,
+		&i.Component,
+		&i.Redirect,
+		&i.Hyperlink,
+		&i.IsHide,
+		&i.IsKeepAlive,
+		&i.IsAffix,
+		&i.IsIframe,
+		&i.Auth,
+		&i.Icon,
+		&i.Type,
+		&i.Sort,
+		&i.CreatedAt,
+	)
+	return &i, err
 }

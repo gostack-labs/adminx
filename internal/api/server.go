@@ -64,6 +64,7 @@ func (server *Server) setupRouter() {
 	menu := sys.Group("/menu")
 	menu.GET("/tree", server.menuTree)
 	menu.POST("", server.createMenu)
+	menu.PUT("/:id", server.updateMenu)
 	menu.DELETE("/single/:id", server.deleteMenu)
 	menu.DELETE("/batch", server.batchDeleteMenu)
 	menu.GET("/button/:id", server.menuButton)

@@ -33,6 +33,7 @@ type Querier interface {
 	DeleteRoleMenu(ctx context.Context, dollar_1 []int64) error
 	DeleteUser(ctx context.Context, username string) error
 	GetGroupByID(ctx context.Context, id int64) (*ApiGroup, error)
+	GetMenuByID(ctx context.Context, id int64) (*Menu, error)
 	GetRoleKeyByIDs(ctx context.Context, dollar_1 []int64) ([]string, error)
 	GetSession(ctx context.Context, id uuid.UUID) (*Session, error)
 	GetUser(ctx context.Context, username string) (*User, error)
@@ -62,6 +63,7 @@ type Querier interface {
 	UpdateApi(ctx context.Context, arg UpdateApiParams) error
 	// UpdateApiGroup 修改 api 组
 	UpdateApiGroup(ctx context.Context, arg UpdateApiGroupParams) error
+	UpdateMenu(ctx context.Context, arg UpdateMenuParams) (*Menu, error)
 	UpdateRole(ctx context.Context, arg UpdateRoleParams) error
 	UpdateUser(ctx context.Context, arg UpdateUserParams) error
 }

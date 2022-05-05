@@ -15,12 +15,12 @@ WHERE menu = $1 AND api = ANY($2::bigint[])
 `
 
 type DeleteMenuApiByMenuAndApiParams struct {
-	Menu    int64   `json:"menu"`
-	Column2 []int64 `json:"column_2"`
+	Menu int64   `json:"menu"`
+	Apis []int64 `json:"apis"`
 }
 
 func (q *Queries) DeleteMenuApiByMenuAndApi(ctx context.Context, arg DeleteMenuApiByMenuAndApiParams) error {
-	_, err := q.db.Exec(ctx, deleteMenuApiByMenuAndApi, arg.Menu, arg.Column2)
+	_, err := q.db.Exec(ctx, deleteMenuApiByMenuAndApi, arg.Menu, arg.Apis)
 	return err
 }
 

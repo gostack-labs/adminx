@@ -6,6 +6,7 @@ import (
 
 	db "github.com/gostack-labs/adminx/internal/repository/db/sqlc"
 	"github.com/gostack-labs/bytego"
+	"github.com/jackc/pgx/v4"
 )
 
 type MenuValue struct {
@@ -135,7 +136,7 @@ func (server *Server) menuTree(c *bytego.Ctx) error {
 
 type createMenuRequest struct {
 	// 父级
-	Parent *int64 `json:"parent" validate:"required,numeric"`
+	Parent int64 `json:"parent" validate:"required,numeric"`
 	// 标题
 	Title string `json:"title" validate:"required"`
 	// 路径
@@ -174,7 +175,7 @@ func (server *Server) createMenu(c *bytego.Ctx) error {
 	}
 
 	arg := db.CreateMenuParams{
-		Parent:      *req.Parent,
+		Parent:      req.Parent,
 		Title:       req.Title,
 		Path:        req.Path,
 		Name:        req.Name,
@@ -190,12 +191,103 @@ func (server *Server) createMenu(c *bytego.Ctx) error {
 		Type:        req.Type,
 		Sort:        req.Sort,
 	}
-	m, err := server.store.CreateMenu(c.Context(), arg)
+	if req.Parent == 0 {
+		if req.Type == 3 {
+			return c.JSON(http.StatusInternalServerError, errorResponse(errors.New("根目录类型有误")))
+		} else {
+			menu, err := server.store.CreateMenu(c.Context(), arg)
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, errorResponse(err))
+			}
+			return c.JSON(http.StatusOK, menu)
+		}
+	}
+	m, err := server.store.GetMenuByID(c.Context(), req.Parent)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return c.JSON(http.StatusNotFound, errorResponse(err))
+		}
+		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+
+	switch m.Type {
+	case 1:
+		if req.Type == 3 {
+			err = errors.New("目录下不允许创建按钮权限")
+		}
+	case 2:
+		if req.Type == 1 || req.Type == 2 {
+			err = errors.New("菜单下不允许创建目录或子菜单")
+		}
+	case 3:
+		err = errors.New("按钮下不允许创建子节点")
+	}
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
-	return c.JSON(http.StatusOK, m)
 
+	menu, err := server.store.CreateMenu(c.Context(), arg)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+	return c.JSON(http.StatusOK, menu)
+}
+
+type updateMenuRequest struct {
+	ID    int64  `param:"id" validate:"required"`
+	Title string `json:"title" validate:"required"`
+	// 路径
+	Path *string `json:"path"`
+	// 路由名称
+	Name string `json:"name" validate:"required"`
+	// 组件路径
+	Component *string `json:"component"`
+	// 跳转路径
+	Redirect *string `json:"redirect"`
+	// 超链接
+	Hyperlink *string `json:"hyperlink"`
+	// 是否隐藏
+	IsHide bool `json:"is_hide"`
+	// 是否缓存组件状态
+	IsKeepAlive bool `json:"is_keep_alive"`
+	// 是否固定在标签栏
+	IsAffix bool `json:"is_affix"`
+	// 是否内嵌窗口
+	IsIframe bool `json:"is_iframe"`
+	// 权限粒子
+	Auth []string `json:"auth"`
+	// 图标
+	Icon *string `json:"icon"`
+	// 顺序
+	Sort int32 `json:"sort"`
+}
+
+func (server *Server) updateMenu(c *bytego.Ctx) error {
+	var req updateMenuRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, errorResponse(err))
+	}
+	arg := db.UpdateMenuParams{
+		ID:          req.ID,
+		Title:       req.Title,
+		Path:        req.Path,
+		Name:        req.Name,
+		Component:   req.Component,
+		Redirect:    req.Redirect,
+		Hyperlink:   req.Hyperlink,
+		IsHide:      req.IsHide,
+		IsKeepAlive: req.IsKeepAlive,
+		IsAffix:     req.IsAffix,
+		IsIframe:    req.IsIframe,
+		Auth:        req.Auth,
+		Icon:        req.Icon,
+		Sort:        req.Sort,
+	}
+	menu, err := server.store.UpdateMenu(c.Context(), arg)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+	return c.JSON(http.StatusOK, menu)
 }
 
 type deleteMenuRequest struct {
@@ -227,7 +319,7 @@ func (server *Server) deleteMenu(c *bytego.Ctx) error {
 }
 
 type batchDeleteMenuRequest struct {
-	MenuIDs []int64 `json:"menu_ids" validate:"required"`
+	IDs []int64 `json:"ids" validate:"required"`
 }
 
 func (server *Server) batchDeleteMenu(c *bytego.Ctx) error {
@@ -235,14 +327,14 @@ func (server *Server) batchDeleteMenu(c *bytego.Ctx) error {
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse(err))
 	}
-	menuCount, err := server.store.CountMenusByParent(c.Context(), req.MenuIDs)
+	menuCount, err := server.store.CountMenusByParent(c.Context(), req.IDs)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
 	if menuCount > 0 {
 		return c.JSON(http.StatusForbidden, errorResponse(errors.New("The current menu has child nodes and cannot be deleted directly")))
 	}
-	err = server.store.DeleteMenu(c.Context(), req.MenuIDs)
+	err = server.store.DeleteMenu(c.Context(), req.IDs)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
@@ -253,6 +345,7 @@ func (server *Server) batchDeleteMenu(c *bytego.Ctx) error {
 	})
 }
 
+// 查询菜单下的所有按钮
 type menuButtonRequest struct {
 	ID int64 `param:"id" validate:"required,numeric"`
 }
@@ -320,8 +413,8 @@ func (server *Server) mentBindApi(c *bytego.Ctx) error {
 		}
 	} else if req.Type == 0 {
 		arg := db.DeleteMenuApiByMenuAndApiParams{
-			Menu:    req.ID,
-			Column2: req.Apis,
+			Menu: req.ID,
+			Apis: req.Apis,
 		}
 		err := server.store.DeleteMenuApiByMenuAndApi(c.Context(), arg)
 		if err != nil {
@@ -329,7 +422,7 @@ func (server *Server) mentBindApi(c *bytego.Ctx) error {
 		}
 	}
 
-	return c.JSON(http.StatusOK, bytego.Map{})
+	return c.JSON(http.StatusOK, bytego.Map{"success": true, "message": "操作成功"})
 }
 
 type mentApisRequest struct {

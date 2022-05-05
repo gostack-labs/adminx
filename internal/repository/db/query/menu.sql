@@ -23,6 +23,15 @@ INSERT INTO menus (
     $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
 ) RETURNING *;
 
+-- name: UpdateMenu :one
+UPDATE menus
+SET title = $1, path = $2, name = $3, component = $4,
+redirect = $5, hyperlink = $6, is_hide = $7, is_keep_alive = $8,
+is_affix = $9, is_iframe = $10, auth = $11, icon = $12,
+sort = $13
+WHERE id = $14
+RETURNING *;
+
 -- name: DeleteMenu :exec
 DELETE FROM menus WHERE id = ANY(@ids::bigint[]);
 
@@ -46,3 +55,7 @@ WHERE id = ANY(@ids::bigserial[]);
 -- name: ListMenuForAuthByIDs :many
 SELECT DISTINCT UNNEST(auth) from menus
 WHERE id = ANY(@ids::bigserial[]);
+
+-- name: GetMenuByID :one
+SELECT * FROM menus
+WHERE id = $1;
