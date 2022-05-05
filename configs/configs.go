@@ -80,6 +80,7 @@ type verifycode struct {
 }
 
 type casbin struct {
+	DBName       string
 	RbacModel    string
 	TableName    string
 	IntervalTime time.Duration

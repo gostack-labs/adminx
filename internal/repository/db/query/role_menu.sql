@@ -16,7 +16,7 @@ INSERT INTO role_menus (
 
 -- name: DeleteRoleMenu :exec
 DELETE FROM role_menus
-WHERE id = ANY($1::bigserial[]);
+WHERE id = ANY($1::bigint[]);
 
 -- name: ListRoleMenuForMenu :many
 SELECT menu FROM role_menus

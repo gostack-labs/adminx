@@ -11,6 +11,8 @@ import (
 )
 
 type Querier interface {
+	CheckUserEmail(ctx context.Context, email string) (bool, error)
+	CheckUserPhone(ctx context.Context, phone string) (bool, error)
 	// CountApiByMUT 根据 标题 url method 查询数量
 	CountApiByMUT(ctx context.Context, arg CountApiByMUTParams) (int64, error)
 	CountMenusByParent(ctx context.Context, parents []int64) (int64, error)
@@ -31,14 +33,12 @@ type Querier interface {
 	DeleteMenuApiByMenuAndApi(ctx context.Context, arg DeleteMenuApiByMenuAndApiParams) error
 	DeleteRole(ctx context.Context, id []int64) error
 	DeleteRoleMenu(ctx context.Context, dollar_1 []int64) error
-	DeleteUser(ctx context.Context, username string) error
+	DeleteUser(ctx context.Context, dollar_1 []string) error
 	GetGroupByID(ctx context.Context, id int64) (*ApiGroup, error)
 	GetMenuByID(ctx context.Context, id int64) (*Menu, error)
 	GetRoleKeyByIDs(ctx context.Context, dollar_1 []int64) ([]string, error)
 	GetSession(ctx context.Context, id uuid.UUID) (*Session, error)
 	GetUser(ctx context.Context, username string) (*User, error)
-	GetUserByEmail(ctx context.Context, email string) (*User, error)
-	GetUserByPhone(ctx context.Context, phone string) (*User, error)
 	ListApi(ctx context.Context, arg ListApiParams) ([]*Api, error)
 	ListApiBatch(ctx context.Context, arg []ListApiBatchParams) *ListApiBatchBatchResults
 	ListApiByGroup(ctx context.Context, dollar_1 []int64) ([]*Api, error)

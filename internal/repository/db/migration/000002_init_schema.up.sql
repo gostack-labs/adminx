@@ -40,7 +40,7 @@ INSERT INTO api_groups (name, remark) VALUES ('系统管理', '');
 -- API接口
 INSERT INTO apis (title, url, method, groups, remark) VALUES ('获取用户列表', '/sys/user', 'GET', 1, '');
 INSERT INTO apis (title, url, method, groups, remark) VALUES ('获取用户详情', '/sys/user/info', 'GET', 1, '');
-INSERT INTO apis (title, url, method, groups, remark) VALUES ('通过ID获取用户详情', '/sys/user/info/:username', 'GET', 1, '');
+INSERT INTO apis (title, url, method, groups, remark) VALUES ('通过用户名获取用户详情', '/sys/user/info/:username', 'GET', 1, '');
 INSERT INTO apis (title, url, method, groups, remark) VALUES ('新建用户', '/sys/user', 'POST', 1, '');
 INSERT INTO apis (title, url, method, groups, remark) VALUES ('编辑用户', '/sys/user/:username', 'PUT', 1, '');
 INSERT INTO apis (title, url, method, groups, remark) VALUES ('删除用户', '/sys/user/:username', 'DELETE', 1, '');

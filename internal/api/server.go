@@ -103,7 +103,8 @@ func (server *Server) setupRouter() {
 	user.GET("/info/:username", server.userInfoByID)
 	user.POST("", server.createUser)
 	user.PUT("/:username", server.updateUser)
-	user.DELETE("/:username", server.deleteUser)
+	user.DELETE("/single/:username", server.deleteUser)
+	user.DELETE("/batch", server.batchDeleteUser)
 	server.router = router
 }
 

@@ -34,5 +34,7 @@ verifycode:
   keyprefix: adminx
   expiretime: 10h
 casbin:
-  rabcModel: configs/rbac_model.conf
+  dbname: adminx
+  rbacModel: configs/rbac_model.conf
   tableName: casbin_rule
+  intervalTime: 3s

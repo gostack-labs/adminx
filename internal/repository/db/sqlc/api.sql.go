@@ -57,7 +57,7 @@ func (q *Queries) CreateApi(ctx context.Context, arg CreateApiParams) error {
 
 const deleteApi = `-- name: DeleteApi :exec
 DELETE FROM apis
-WHERE id = ANY($1::bigserial[])
+WHERE id = ANY($1::bigint[])
 `
 
 func (q *Queries) DeleteApi(ctx context.Context, id []int64) error {

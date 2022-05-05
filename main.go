@@ -6,6 +6,7 @@ import (
 
 	"github.com/gostack-labs/adminx/configs"
 	"github.com/gostack-labs/adminx/internal/api"
+	"github.com/gostack-labs/adminx/internal/middleware/permission"
 	db "github.com/gostack-labs/adminx/internal/repository/db/sqlc"
 	"github.com/gostack-labs/adminx/internal/repository/redis"
 	"github.com/jackc/pgx/v4"
@@ -17,6 +18,8 @@ func main() {
 	if err != nil {
 		log.Fatal("connot connect to redis:", err)
 	}
+
+	permission.Casbin()
 
 	conn, err := pgx.Connect(context.Background(), configs.Config.DB.Source)
 	if err != nil {

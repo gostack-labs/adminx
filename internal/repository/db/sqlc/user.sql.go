@@ -9,6 +9,30 @@ import (
 	"context"
 )
 
+const checkUserEmail = `-- name: CheckUserEmail :one
+SELECT count(*)>0 FROM users
+WHERE email = $1 LIMIT 1
+`
+
+func (q *Queries) CheckUserEmail(ctx context.Context, email string) (bool, error) {
+	row := q.db.QueryRow(ctx, checkUserEmail, email)
+	var column_1 bool
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
+const checkUserPhone = `-- name: CheckUserPhone :one
+SELECT count(*)>0 FROM users
+WHERE phone = $1 LIMIT 1
+`
+
+func (q *Queries) CheckUserPhone(ctx context.Context, phone string) (bool, error) {
+	row := q.db.QueryRow(ctx, checkUserPhone, phone)
+	var column_1 bool
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
     username,
@@ -52,11 +76,11 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (*User, 
 
 const deleteUser = `-- name: DeleteUser :exec
 DELETE FROM users
-WHERE username = $1
+WHERE username = ANY($1::text[])
 `
 
-func (q *Queries) DeleteUser(ctx context.Context, username string) error {
-	_, err := q.db.Exec(ctx, deleteUser, username)
+func (q *Queries) DeleteUser(ctx context.Context, dollar_1 []string) error {
+	_, err := q.db.Exec(ctx, deleteUser, dollar_1)
 	return err
 }
 
@@ -80,52 +104,12 @@ func (q *Queries) GetUser(ctx context.Context, username string) (*User, error) {
 	return &i, err
 }
 
-const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT username, hashed_password, full_name, email, phone, password_change_at, created_at FROM users
-WHERE email = $1 LIMIT 1
-`
-
-func (q *Queries) GetUserByEmail(ctx context.Context, email string) (*User, error) {
-	row := q.db.QueryRow(ctx, getUserByEmail, email)
-	var i User
-	err := row.Scan(
-		&i.Username,
-		&i.HashedPassword,
-		&i.FullName,
-		&i.Email,
-		&i.Phone,
-		&i.PasswordChangeAt,
-		&i.CreatedAt,
-	)
-	return &i, err
-}
-
-const getUserByPhone = `-- name: GetUserByPhone :one
-SELECT username, hashed_password, full_name, email, phone, password_change_at, created_at FROM users
-WHERE phone = $1 LIMIT 1
-`
-
-func (q *Queries) GetUserByPhone(ctx context.Context, phone string) (*User, error) {
-	row := q.db.QueryRow(ctx, getUserByPhone, phone)
-	var i User
-	err := row.Scan(
-		&i.Username,
-		&i.HashedPassword,
-		&i.FullName,
-		&i.Email,
-		&i.Phone,
-		&i.PasswordChangeAt,
-		&i.CreatedAt,
-	)
-	return &i, err
-}
-
 const listUser = `-- name: ListUser :many
 SELECT username, hashed_password, full_name, email, phone, password_change_at, created_at FROM users
-WHERE CASE WHEN $1::text = '' THEN 1=1 ELSE name like concat('%',$1::text,'%') END
-AND CASE WHEN $2::text = '' THEN 1=1 ELSE key like concat('%',$2::text,'%') END
-AND CASE WHEN $3::text = '' THEN 1=1 ELSE key like concat('%',$3::text,'%') END
-AND CASE WHEN $4::text = '' THEN 1=1 ELSE key like concat('%',$4::text,'%') END
+WHERE CASE WHEN $1::text = '' THEN 1=1 ELSE username like concat('%',$1::text,'%') END
+AND CASE WHEN $2::text = '' THEN 1=1 ELSE full_name like concat('%',$2::text,'%') END
+AND CASE WHEN $3::text = '' THEN 1=1 ELSE email like concat('%',$3::text,'%') END
+AND CASE WHEN $4::text = '' THEN 1=1 ELSE phone like concat('%',$4::text,'%') END
 LIMIT $6::int
 OFFSET $5::int
 `

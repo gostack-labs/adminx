@@ -11,6 +11,7 @@ import (
 	"github.com/gostack-labs/adminx/internal/utils"
 	"github.com/gostack-labs/adminx/pkg/token"
 	"github.com/gostack-labs/bytego"
+	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
 )
 
@@ -54,7 +55,7 @@ func (server *Server) userInfo(c *bytego.Ctx) error {
 		Button []interface{} `json:"button"`
 	}
 	payload, exist := c.Get(auth.AuthorizationPayloadKey)
-	if exist {
+	if !exist {
 		return c.JSON(http.StatusUnauthorized, errorResponse(errors.New("un authorized")))
 	}
 	authPayload := payload.(*token.Payload)
@@ -69,7 +70,9 @@ func (server *Server) userInfo(c *bytego.Ctx) error {
 		for _, g := range groups {
 			roles = append(roles, g[1])
 		}
-		userInfo.Role = roles
+		userInfo.Role = append(userInfo.Role, roles...)
+	} else {
+		userInfo.Role = []string{}
 	}
 
 	// 查询角色ID
@@ -136,7 +139,9 @@ func (server *Server) userInfoByID(c *bytego.Ctx) error {
 		for _, g := range groups {
 			roles = append(roles, g[1])
 		}
-		userInfo.Role = roles
+		userInfo.Role = append(userInfo.Role, roles...)
+	} else {
+		userInfo.Role = []string{}
 	}
 
 	return c.JSON(http.StatusOK, userInfo)
@@ -162,22 +167,22 @@ func (server *Server) createUser(c *bytego.Ctx) error {
 	}
 
 	if strings.TrimSpace(req.Email) != "" {
-		u, err := server.store.GetUserByEmail(c.Context(), req.Email)
+		b, err := server.store.CheckUserEmail(c.Context(), req.Email)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, errorResponse(err))
 		}
-		if u != nil {
+		if b {
 			return c.JSON(http.StatusForbidden, bytego.Map{"error": "该邮箱已存在！"})
 		}
 	}
 
 	if strings.TrimSpace(req.Phone) != "" {
-		u, err := server.store.GetUserByPhone(c.Context(), req.Phone)
+		b, err := server.store.CheckUserPhone(c.Context(), req.Phone)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, errorResponse(err))
 		}
 
-		if u != nil {
+		if b {
 			return c.JSON(http.StatusForbidden, bytego.Map{"error": "该手机号已存在！"})
 		}
 	}
@@ -207,6 +212,12 @@ func (server *Server) createUser(c *bytego.Ctx) error {
 		return err
 	})
 	if err != nil {
+		var pgxerr *pgconn.PgError
+		if errors.As(err, &pgxerr) {
+			if pgxerr.Code == "23505" {
+				return c.JSON(http.StatusForbidden, errorResponse(err))
+			}
+		}
 		return c.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
 	return c.JSON(http.StatusOK, user)
@@ -225,7 +236,32 @@ func (server *Server) updateUser(c *bytego.Ctx) error {
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse(err))
 	}
-	err := server.store.ExecTx(c.Context(), func(q *db.Queries) error {
+	u, err := server.store.GetUser(c.Context(), req.Username)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return c.JSON(http.StatusNotFound, errorResponse(err))
+		}
+		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+	if u.Email != req.Email {
+		b, err := server.store.CheckUserEmail(c.Context(), req.Email)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		}
+		if b {
+			return c.JSON(http.StatusFound, errorResponse(errors.New("该邮箱已存在！")))
+		}
+	}
+	if u.Phone != req.Phone {
+		b, err := server.store.CheckUserPhone(c.Context(), req.Phone)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		}
+		if b {
+			return c.JSON(http.StatusFound, errorResponse(errors.New("该手机号码已存在！")))
+		}
+	}
+	err = server.store.ExecTx(c.Context(), func(q *db.Queries) error {
 		arg := db.UpdateUserParams{
 			Username: req.Username,
 			FullName: req.FullName,
@@ -291,7 +327,29 @@ func (server *Server) deleteUser(c *bytego.Ctx) error {
 		return c.JSON(http.StatusFound, errorResponse(errors.New("当前用户关联了其他角色，无法直接删除")))
 	}
 
-	err := server.store.DeleteUser(c.Context(), req.Username)
+	err := server.store.DeleteUser(c.Context(), []string{req.Username})
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+	return c.JSON(http.StatusOK, bytego.Map{"success": true, "message": "删除成功"})
+}
+
+type batchDeleteUserRequest struct {
+	Usernames []string `json:"usernames" validate:"required"`
+}
+
+func (server *Server) batchDeleteUser(c *bytego.Ctx) error {
+	var req batchDeleteUserRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, errorResponse(err))
+	}
+
+	groups := permission.Enforcer.GetFilteredNamedGroupingPolicy("g", 0, req.Usernames...)
+	if len(groups) > 0 {
+		return c.JSON(http.StatusFound, errorResponse(errors.New("当前用户关联了其他角色，无法直接删除")))
+	}
+
+	err := server.store.DeleteUser(c.Context(), req.Usernames)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, errorResponse(err))
 	}

@@ -2,7 +2,6 @@ package permission
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/casbin/casbin/v2"
 	"github.com/gostack-labs/adminx/configs"
@@ -15,11 +14,11 @@ var Enforcer *casbin.SyncedEnforcer
 
 func Casbin() *casbin.SyncedEnforcer {
 	cc, _ := pgx.ParseConfig(configs.Config.DB.Source)
-	a, _ := pgxAdapter.NewAdapter(cc, pgxAdapter.WithSkipTableCreate(), pgxAdapter.WithTableName(configs.Config.Casbin.TableName))
-	Enforce, _ := casbin.NewSyncedEnforcer(configs.Config.Casbin.RbacModel, a)
-	_ = Enforce.LoadPolicy()
-	Enforce.StartAutoLoadPolicy(time.Second * configs.Config.Casbin.IntervalTime)
-	return Enforce
+	a, _ := pgxAdapter.NewAdapter(cc, pgxAdapter.WithTableName(configs.Config.Casbin.TableName), pgxAdapter.WithDatabase(configs.Config.Casbin.DBName))
+	Enforcer, _ = casbin.NewSyncedEnforcer(configs.Config.Casbin.RbacModel, a)
+	_ = Enforcer.LoadPolicy()
+	Enforcer.StartAutoLoadPolicy(configs.Config.Casbin.IntervalTime)
+	return Enforcer
 }
 
 func CheckPermMiddleware() bytego.HandlerFunc {

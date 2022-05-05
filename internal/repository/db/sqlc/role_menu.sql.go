@@ -23,7 +23,7 @@ func (q *Queries) CountRoleMenuByRole(ctx context.Context, dollar_1 []int64) (in
 
 const deleteRoleMenu = `-- name: DeleteRoleMenu :exec
 DELETE FROM role_menus
-WHERE id = ANY($1::bigserial[])
+WHERE id = ANY($1::bigint[])
 `
 
 func (q *Queries) DeleteRoleMenu(ctx context.Context, dollar_1 []int64) error {

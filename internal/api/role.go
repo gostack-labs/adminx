@@ -182,12 +182,8 @@ func (server *Server) batchDeleteRole(c *bytego.Ctx) error {
 }
 
 type updateRolePermissionRequest struct {
-	ID        int64 `param:"id" validate:"required"`
-	RoleMenus []*struct {
-		Role int64 `json:"role" validate:"required"`
-		Menu int64 `json:"menu" validate:"required"`
-		Type int32 `json:"type" validate:"required,oneof=1 2"`
-	} `json:"role_menus" validate:"required"`
+	ID        int64                     `param:"id" validate:"required"`
+	RoleMenus []db.CreateRoleMenuParams `json:"role_menus"`
 }
 
 func (server *Server) updateRolePermission(c *bytego.Ctx) error {
@@ -232,7 +228,7 @@ func (server *Server) updateRolePermission(c *bytego.Ctx) error {
 			crm := server.store.CreateRoleMenu(c.Context(), createRoleMenu)
 			defer crm.Close()
 			crm.Exec(func(i int, err error) {
-				errs[i] = err
+				errs = append(errs, err)
 			})
 			for _, v := range errs {
 				if v != nil {
@@ -252,10 +248,7 @@ func (server *Server) updateRolePermission(c *bytego.Ctx) error {
 			}
 		}
 	} else {
-		for i, roleMenu := range req.RoleMenus {
-			createRoleMenu[i] = db.CreateRoleMenuParams(*roleMenu)
-		}
-		crm := server.store.CreateRoleMenu(c.Context(), createRoleMenu)
+		crm := server.store.CreateRoleMenu(c.Context(), req.RoleMenus)
 		defer crm.Close()
 		crm.Exec(func(i int, err error) {
 			errs[i] = err
@@ -314,8 +307,8 @@ func (server *Server) getRolePermission(c *bytego.Ctx) error {
 }
 
 type roleApiPermissionRequest struct {
-	ID   int64   `param:"id" validate:"id"`
-	Type int     `json:"type" validate:"required,oneof=0 1"` // 0:接触api权限 1:绑定api权限
+	ID   int64   `param:"id" validate:"required"`
+	Type *int    `json:"type" validate:"required,oneof=0 1"` // 0:解除api权限 1:绑定api权限
 	Api  []int64 `json:"api" validate:"required"`
 }
 
@@ -338,12 +331,12 @@ func (server *Server) roleApiPermission(c *bytego.Ctx) error {
 		groups = append(groups, []string{role.Key, api.Url, api.Method})
 	}
 
-	if req.Type == 1 {
+	if *req.Type == 1 {
 		_, err = permission.Enforcer.AddNamedPolicies("p", groups)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, errorResponse(err))
 		}
-	} else if req.Type == 0 {
+	} else if *req.Type == 0 {
 		_, err := permission.Enforcer.RemoveNamedPolicies("p", groups)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -395,6 +388,9 @@ func (server *Server) getRoleApi(c *bytego.Ctx) error {
 				}
 			}
 		}
+	}
+	if len(apis) == 0 {
+		apis = []int64{}
 	}
 	return c.JSON(http.StatusOK, apis)
 }

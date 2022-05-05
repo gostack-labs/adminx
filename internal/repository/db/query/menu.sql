@@ -50,11 +50,11 @@ WHERE parent != 0 and type = 2;
 
 -- name: ListMenuForParentIDByID :many
 SELECT id,parent FROM menus
-WHERE id = ANY(@ids::bigserial[]);
+WHERE id = ANY(@ids::bigint[]);
 
 -- name: ListMenuForAuthByIDs :many
 SELECT DISTINCT UNNEST(auth) from menus
-WHERE id = ANY(@ids::bigserial[]);
+WHERE id = ANY(@ids::bigint[]);
 
 -- name: GetMenuByID :one
 SELECT * FROM menus

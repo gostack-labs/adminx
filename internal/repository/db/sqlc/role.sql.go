@@ -38,7 +38,7 @@ func (q *Queries) CreateRole(ctx context.Context, arg CreateRoleParams) error {
 
 const deleteRole = `-- name: DeleteRole :exec
 DELETE FROM roles
-WHERE id = ANY($1::bigserial[])
+WHERE id = ANY($1::bigint[])
 `
 
 func (q *Queries) DeleteRole(ctx context.Context, id []int64) error {
@@ -48,7 +48,7 @@ func (q *Queries) DeleteRole(ctx context.Context, id []int64) error {
 
 const getRoleKeyByIDs = `-- name: GetRoleKeyByIDs :many
 SELECT key FROM roles
-WHERE id = ANY($1::bigserial[])
+WHERE id = ANY($1::bigint[])
 `
 
 func (q *Queries) GetRoleKeyByIDs(ctx context.Context, dollar_1 []int64) ([]string, error) {

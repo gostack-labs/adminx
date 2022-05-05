@@ -27,7 +27,7 @@ WHERE id = $6;
 
 -- name: DeleteApi :exec
 DELETE FROM apis
-WHERE id = ANY(@id::bigserial[]);
+WHERE id = ANY(@id::bigint[]);
 
 -- name: ListApiBatch :batchmany
 SELECT id FROM apis

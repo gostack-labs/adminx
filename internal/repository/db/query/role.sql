@@ -7,7 +7,7 @@ OFFSET @pageOffset::int;
 
 -- name: GetRoleKeyByIDs :many
 SELECT key FROM roles
-WHERE id = ANY($1::bigserial[]);
+WHERE id = ANY($1::bigint[]);
 
 -- name: CreateRole :exec
 INSERT INTO roles (
@@ -23,7 +23,7 @@ WHERE id = $6;
 
 -- name: DeleteRole :exec
 DELETE FROM roles
-WHERE id = ANY(@id::bigserial[]);
+WHERE id = ANY(@id::bigint[]);
 
 -- name: ListRoleByID :one
 SELECT * FROM roles

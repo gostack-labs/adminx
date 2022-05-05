@@ -186,7 +186,7 @@ func (q *Queries) ListMenuByParent(ctx context.Context, parent int64) ([]*Menu, 
 
 const listMenuForAuthByIDs = `-- name: ListMenuForAuthByIDs :many
 SELECT DISTINCT UNNEST(auth) from menus
-WHERE id = ANY($1::bigserial[])
+WHERE id = ANY($1::bigint[])
 `
 
 func (q *Queries) ListMenuForAuthByIDs(ctx context.Context, ids []int64) ([]interface{}, error) {
@@ -237,7 +237,7 @@ func (q *Queries) ListMenuForParent(ctx context.Context) ([]int64, error) {
 
 const listMenuForParentIDByID = `-- name: ListMenuForParentIDByID :many
 SELECT id,parent FROM menus
-WHERE id = ANY($1::bigserial[])
+WHERE id = ANY($1::bigint[])
 `
 
 type ListMenuForParentIDByIDRow struct {
