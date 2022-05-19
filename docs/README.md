@@ -28,9 +28,11 @@ adminx服务相关接口
 
 3. [基础接口](./apis-basic.md)
 
-    3.1. [用户登录接口](./apis-basic.md#1-用户登录接口)
+    3.1. [获取错误列表接口](./apis-basic.md#1-获取错误列表接口)
 
-    3.2. [刷新token接口](./apis-basic.md#2-刷新token接口)
+    3.2. [用户登录接口](./apis-basic.md#2-用户登录接口)
+
+    3.3. [刷新token接口](./apis-basic.md#3-刷新token接口)
 
 4. [菜单管理相关接口](./apis-menu.md)
 

@@ -90,6 +90,8 @@ func (server *Server) setupRouter() {
 
 		router.POST("/signin", server.logginUser)
 		router.POST("/tokens/renew_access", server.renewAccessToken)
+
+		router.GET("/code", server.code)
 	}
 
 	//@group system

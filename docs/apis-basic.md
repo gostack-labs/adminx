@@ -2,12 +2,45 @@
 
 登录、注册、获取验证码、刷新token相关接口
 
-1. [用户登录接口](#1-用户登录接口)
-2. [刷新token接口](#2-刷新token接口)
+1. [获取错误列表接口](#1-获取错误列表接口)
+2. [用户登录接口](#2-用户登录接口)
+3. [刷新token接口](#3-刷新token接口)
 
 ## apis
 
-### 1. 用户登录接口
+### 1. 获取错误列表接口
+
+```text
+GET /code
+```
+
+__Response__:
+
+```javascript
+//StatusCode: 200 
+{  //object(resp.resultOK)
+  "code": 10000,  //int
+  "data": {  //object(api.codeResponse), 获取错误列表
+    "BusinessCodes": [  //array[api.codes], 业务错误
+      {  //object(api.codes)
+        "code": 123,  //int, 错误码
+        "message": "abc"  //string, 错误描述
+      }
+    ],
+    "SystemCodes": [  //array[api.codes], 系统错误
+      {  //object(api.codes)
+        "code": 123,  //int, 错误码
+        "message": "abc"  //string, 错误描述
+      }
+    ]
+  },
+  "msg": "获取成功"  //string
+}
+```
+
+---
+
+### 2. 用户登录接口
 
 ```text
 POST /signin
@@ -40,7 +73,7 @@ __Response__:
 
 ---
 
-### 2. 刷新token接口
+### 3. 刷新token接口
 
 ```text
 POST /tokens/renew_access
