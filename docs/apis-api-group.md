@@ -16,6 +16,16 @@
 GET /sys/api-group
 ```
 
+_body_:
+
+```javascript
+{  //object(api.listApiGroupRequest), 分页获取接口分组列表请求参数
+  "key": "string",  //string, 查询关键字(接口分组名称、备注模糊查询)
+  "page_id": 0,  //int32, validate:"required,min=1", 页码
+  "page_size": 0  //int32, validate:"required,min=5,max=50", 页尺寸
+}
+```
+
 __Response__:
 
 ```javascript
@@ -25,9 +35,9 @@ __Response__:
   "data": [  //array[db.ApiGroup]
     {  //object(db.ApiGroup)
       "created_at": "2022-05-16T16:47:48.741899+08:00",  //object(time.Time)
-      "id": 123,  //int64
-      "name": "abc",  //string
-      "remark": "abc"  //string
+      "id": 0,  //int64
+      "name": "string",  //string
+      "remark": "string"  //string
     }
   ],
   "msg": "获取成功"  //string
@@ -40,6 +50,15 @@ __Response__:
 
 ```text
 POST /sys/api-group
+```
+
+_body_:
+
+```javascript
+{  //object(api.createApiGroupRequest), 新增接口分组请求参数
+  "name": "string",  //string, validate:"required", 接口分组名称
+  "remark": "string"  //string, validate:"required,omitempty", 备注
+}
 ```
 
 __Response__:
@@ -70,8 +89,8 @@ _body_:
 
 ```javascript
 {  //object(api.updateApiGroupRequest), 更新接口分组请求参数
-  "name": "abc",  //string, required, 接口分组名称
-  "remark": "abc"  //string, required, 备注
+  "name": "string",  //string, validate:"required", 接口分组名称
+  "remark": "string"  //string, validate:"required,omitempty", 备注
 }
 ```
 
@@ -115,6 +134,16 @@ __Response__:
 
 ```text
 DELETE /sys/api-group/batch
+```
+
+_body_:
+
+```javascript
+{  //object(api.batchDeleteApiGroupRequest), 批量删除接口分组请求参数
+  "ids": [  //array[int64], validate:"required", 主键ID集合
+    0
+  ]
+}
 ```
 
 __Response__:

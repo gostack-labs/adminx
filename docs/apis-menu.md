@@ -27,7 +27,7 @@ __Response__:
 {  //object(resp.resultOK)
   "code": 10000,  //int
   "data": {  //object(map[string]any)
-    "abc": null  //any
+    "string": null  //any
   },
   "msg": "获取成功"  //string
 }
@@ -39,6 +39,30 @@ __Response__:
 
 ```text
 POST /sys/menu
+```
+
+_body_:
+
+```javascript
+{  //object(api.createMenuRequest), 新增菜单请求参数
+  "auth": [  //array[string], 权限粒子
+    "string"
+  ],
+  "component": "string",  //string, 组件路径
+  "hyperlink": "string",  //string, 超链接
+  "icon": "string",  //string, 图标
+  "is_affix": false,  //bool, 是否固定在标签栏
+  "is_hide": false,  //bool, 是否隐藏
+  "is_iframe": false,  //bool, 是否内嵌窗口
+  "is_keep_alive": false,  //bool, 是否缓存组件状态
+  "name": "string",  //string, validate:"required", 路由名称
+  "parent": 0,  //int64, validate:"required,numeric", 父级
+  "path": "string",  //string, 路径
+  "redirect": "string",  //string, 跳转路径
+  "sort": 0,  //int32, 顺序
+  "title": "string",  //string, validate:"required", 标题
+  "type": 0  //int32, validate:"oneof=1 2 3", 类型：1 目录，2 菜单，3 按钮
+}
 ```
 
 __Response__:
@@ -70,20 +94,20 @@ _body_:
 ```javascript
 {  //object(api.updateMenuRequest)
   "auth": [  //array[string], 权限粒子
-    "abc"
+    "string"
   ],
-  "component": "abc",  //string, 组件路径
-  "hyperlink": "abc",  //string, 超链接
-  "icon": "abc",  //string, 图标
+  "component": "string",  //string, 组件路径
+  "hyperlink": "string",  //string, 超链接
+  "icon": "string",  //string, 图标
   "is_affix": false,  //bool, 是否固定在标签栏
   "is_hide": false,  //bool, 是否隐藏
   "is_iframe": false,  //bool, 是否内嵌窗口
   "is_keep_alive": false,  //bool, 是否缓存组件状态
-  "name": "abc",  //string, required, 路由名称
-  "path": "abc",  //string, 路径
-  "redirect": "abc",  //string, 跳转路径
-  "sort": 123,  //int32, 顺序
-  "title": "abc"  //string, required, 标题
+  "name": "string",  //string, validate:"required", 路由名称
+  "path": "string",  //string, 路径
+  "redirect": "string",  //string, 跳转路径
+  "sort": 0,  //int32, 顺序
+  "title": "string"  //string, validate:"required", 标题
 }
 ```
 
@@ -129,6 +153,16 @@ __Response__:
 DELETE /sys/menu/batch
 ```
 
+_body_:
+
+```javascript
+{  //object(api.batchDeleteMenuRequest), 批量删除菜单请求参数
+  "ids": [  //array[int64], validate:"required", 主键ID集合
+    0
+  ]
+}
+```
+
 __Response__:
 
 ```javascript
@@ -162,24 +196,24 @@ __Response__:
   "data": [  //array[db.Menu]
     {  //object(db.Menu)
       "auth": [  //array[string]
-        "abc"
+        "string"
       ],
-      "component": "abc",  //string
+      "component": "string",  //string
       "created_at": "2022-05-16T16:47:48.741899+08:00",  //object(time.Time)
-      "hyperlink": "abc",  //string
-      "icon": "abc",  //string
-      "id": 123,  //int64
+      "hyperlink": "string",  //string
+      "icon": "string",  //string
+      "id": 0,  //int64
       "is_affix": false,  //bool
       "is_hide": false,  //bool
       "is_iframe": false,  //bool
       "is_keep_alive": false,  //bool
-      "name": "abc",  //string
-      "parent": 123,  //int64
-      "path": "abc",  //string
-      "redirect": "abc",  //string
-      "sort": 123,  //int32
-      "title": "abc",  //string
-      "type": 123  //int32
+      "name": "string",  //string
+      "parent": 0,  //int64
+      "path": "string",  //string
+      "redirect": "string",  //string
+      "sort": 0,  //int32
+      "title": "string",  //string
+      "type": 0  //int32
     }
   ],
   "msg": "获取成功"  //string
@@ -204,10 +238,10 @@ _body_:
 
 ```javascript
 {  //object(api.menuBindApiRequest), 菜单绑定/解绑api请求参数
-  "apis": [  //array[int64], required, api主键结合
-    123
+  "apis": [  //array[int64], validate:"required", api主键结合
+    0
   ],
-  "type": 123  //int, required, 操作类型 1:bind 2:unbind
+  "type": 0  //int, validate:"required,oneof=1 2", 操作类型 1:bind 2:unbind
 }
 ```
 
@@ -242,7 +276,7 @@ __Response__:
 {  //object(resp.resultOK)
   "code": 10000,  //int
   "data": [  //array[int64]
-    123
+    0
   ],
   "msg": "获取成功"  //string
 }
@@ -271,12 +305,12 @@ __Response__:
   "data": [  //array[db.Api]
     {  //object(db.Api)
       "created_at": "2022-05-16T16:47:48.741899+08:00",  //object(time.Time)
-      "groups": 123,  //int64
-      "id": 123,  //int64
-      "method": "abc",  //string
-      "remark": "abc",  //string
-      "title": "abc",  //string
-      "url": "abc"  //string
+      "groups": 0,  //int64
+      "id": 0,  //int64
+      "method": "string",  //string
+      "remark": "string",  //string
+      "title": "string",  //string
+      "url": "string"  //string
     }
   ],
   "msg": "获取成功"  //string

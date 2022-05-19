@@ -16,6 +16,17 @@
 GET /sys/api
 ```
 
+_body_:
+
+```javascript
+{  //object(api.listApiRequest), 分页获取api列表请求数据
+  "groups": 0,  //int64, validate:"required", 接口分组ID
+  "page_id": 0,  //int32, validate:"required,min=1", 页码
+  "page_size": 0,  //int32, validate:"required,min=5,max=50", 页尺寸
+  "title": "string"  //string, 标题
+}
+```
+
 __Response__:
 
 ```javascript
@@ -25,12 +36,12 @@ __Response__:
   "data": [  //array[db.Api]
     {  //object(db.Api)
       "created_at": "2022-05-16T16:47:48.741899+08:00",  //object(time.Time)
-      "groups": 123,  //int64
-      "id": 123,  //int64
-      "method": "abc",  //string
-      "remark": "abc",  //string
-      "title": "abc",  //string
-      "url": "abc"  //string
+      "groups": 0,  //int64
+      "id": 0,  //int64
+      "method": "string",  //string
+      "remark": "string",  //string
+      "title": "string",  //string
+      "url": "string"  //string
     }
   ],
   "msg": "获取成功"  //string
@@ -43,6 +54,18 @@ __Response__:
 
 ```text
 POST /sys/api
+```
+
+_body_:
+
+```javascript
+{  //object(api.createApiRequest), 新增api请求参数
+  "groups": 0,  //int64, validate:"required", 所属接口分组
+  "method": "string",  //string, validate:"required", 请求方式
+  "remark": "string",  //string, 备注
+  "title": "string",  //string, validate:"required", 标题
+  "url": "string"  //string, validate:"required", 接口地址
+}
 ```
 
 __Response__:
@@ -73,11 +96,11 @@ _body_:
 
 ```javascript
 {  //object(api.updateApiRequest), 更新api请求参数
-  "groups": 123,  //int64, required, 所属接口分组
-  "method": "abc",  //string, required, 请求方式
-  "remark": "abc",  //string, 备注
-  "title": "abc",  //string, required, 标题
-  "url": "abc"  //string, required, 接口地址
+  "groups": 0,  //int64, validate:"required", 所属接口分组
+  "method": "string",  //string, validate:"required", 请求方式
+  "remark": "string",  //string, 备注
+  "title": "string",  //string, validate:"required", 标题
+  "url": "string"  //string, validate:"required", 接口地址
 }
 ```
 
@@ -121,6 +144,16 @@ __Response__:
 
 ```text
 DELETE /sys/api/batch
+```
+
+_body_:
+
+```javascript
+{  //object(api.batchDeleteApiRequest), 批量删除api请求参数
+  "ids": [  //array[int64], validate:"required", 主键集合
+    0
+  ]
+}
 ```
 
 __Response__:
