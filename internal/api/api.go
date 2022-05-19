@@ -151,7 +151,7 @@ type deleteApiRequest struct {
 //@api delete /sys/api/single/:id
 //@group api
 //@request deleteApiRequest
-//@response 200 resp.resultOK{BussinessCode=10000,Message="删除成功"}
+//@response 200 resp.resultOK{businessCode=10000,message="删除成功"}
 func (server *Server) deleteApi(c *bytego.Ctx) error {
 	var req deleteApiRequest
 	if err := c.Bind(&req); err != nil {

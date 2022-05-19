@@ -109,7 +109,7 @@ __Response__:
 //StatusCode: 200 
 {  //object(resp.resultOK)
   "code": 123,  //int
-  "msg": "abc"  //string
+  "msg": "删除成功"  //string
 }
 ```
 
