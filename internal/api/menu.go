@@ -230,34 +230,27 @@ func (server *Server) createMenu(c *bytego.Ctx) error {
 }
 
 type updateMenuRequest struct {
-	ID    int64  `param:"id" validate:"required"`
-	Title string `json:"title" validate:"required"`
-	// 路径
-	Path *string `json:"path"`
-	// 路由名称
-	Name string `json:"name" validate:"required"`
-	// 组件路径
-	Component *string `json:"component"`
-	// 跳转路径
-	Redirect *string `json:"redirect"`
-	// 超链接
-	Hyperlink *string `json:"hyperlink"`
-	// 是否隐藏
-	IsHide bool `json:"is_hide"`
-	// 是否缓存组件状态
-	IsKeepAlive bool `json:"is_keep_alive"`
-	// 是否固定在标签栏
-	IsAffix bool `json:"is_affix"`
-	// 是否内嵌窗口
-	IsIframe bool `json:"is_iframe"`
-	// 权限粒子
-	Auth []string `json:"auth"`
-	// 图标
-	Icon *string `json:"icon"`
-	// 顺序
-	Sort int32 `json:"sort"`
+	ID          int64    `param:"id" validate:"required"`   // 主键ID
+	Title       string   `json:"title" validate:"required"` // 标题
+	Path        *string  `json:"path"`                      // 路径
+	Name        string   `json:"name" validate:"required"`  // 路由名称
+	Component   *string  `json:"component"`                 // 组件路径
+	Redirect    *string  `json:"redirect"`                  // 跳转路径
+	Hyperlink   *string  `json:"hyperlink"`                 // 超链接
+	IsHide      bool     `json:"is_hide"`                   // 是否隐藏
+	IsKeepAlive bool     `json:"is_keep_alive"`             // 是否缓存组件状态
+	IsAffix     bool     `json:"is_affix"`                  // 是否固定在标签栏
+	IsIframe    bool     `json:"is_iframe"`                 // 是否内嵌窗口
+	Auth        []string `json:"auth"`                      // 权限粒子
+	Icon        *string  `json:"icon"`                      // 图标
+	Sort        int32    `json:"sort"`                      // 顺序
 }
 
+//@title 更新菜单接口
+//@api put /sys/menu/:id
+//@group menu
+//@request updateMenuRequest
+//@response 200 resp.resultOK{businesscode=10000,message="修改成功"}
 func (server *Server) updateMenu(c *bytego.Ctx) error {
 	var req updateMenuRequest
 	if err := c.Bind(&req); err != nil {
@@ -287,9 +280,14 @@ func (server *Server) updateMenu(c *bytego.Ctx) error {
 }
 
 type deleteMenuRequest struct {
-	ID int64 `param:"id" validate:"required,numeric"`
-}
+	ID int64 `param:"id" validate:"required,numeric"` // 主键ID
+} // 删除菜单请求参数
 
+//@title 删除菜单接口
+//@api delete /sys/menu/single/:id
+//@group menu
+//@request deleteMenuRequest
+//@response 200 resp.resultOK{businesscode=10000,message="修改成功"}
 func (server *Server) deleteMenu(c *bytego.Ctx) error {
 	var req deleteMenuRequest
 	if err := c.Bind(&req); err != nil {
@@ -311,9 +309,14 @@ func (server *Server) deleteMenu(c *bytego.Ctx) error {
 }
 
 type batchDeleteMenuRequest struct {
-	IDs []int64 `json:"ids" validate:"required"`
-}
+	IDs []int64 `json:"ids" validate:"required"` // 主键ID集合
+} // 批量删除菜单请求参数
 
+//@title 批量删除菜单接口
+//@api delete /sys/menu/batch
+//@group menu
+//@request batchDeleteMenuRequest
+//@response 200 resp.resultOK{businesscode=10000,message="修改成功"}
 func (server *Server) batchDeleteMenu(c *bytego.Ctx) error {
 	var req batchDeleteMenuRequest
 	if err := c.Bind(&req); err != nil {
@@ -335,9 +338,14 @@ func (server *Server) batchDeleteMenu(c *bytego.Ctx) error {
 
 // 查询菜单下的所有按钮
 type menuButtonRequest struct {
-	ID int64 `param:"id" validate:"required,numeric"`
-}
+	ID int64 `param:"id" validate:"required,numeric"` // 主键ID
+} // 获取菜单对应的按钮请求参数
 
+//@title 获取菜单对应的按钮接口
+//@api get /sys/menu/button/:id
+//@group menu
+//@request menuButtonRequest
+//@response 200 resp.resultOK{businesscode=10000,message="获取成功",data=[]db.Menu}
 func (server *Server) menuButton(c *bytego.Ctx) error {
 	var req menuButtonRequest
 	if err := c.Bind(&req); err != nil {
@@ -351,11 +359,16 @@ func (server *Server) menuButton(c *bytego.Ctx) error {
 }
 
 type menuBindApiRequest struct {
-	ID   int64   `param:"id" validate:"required"`
-	Type int     `json:"type" validate:"required,oneof=1 2"` // 1:bind 2:unbind
-	Apis []int64 `json:"apis" validate:"required"`
-}
+	ID   int64   `param:"id" validate:"required"`            // 主键ID
+	Type int     `json:"type" validate:"required,oneof=1 2"` // 操作类型 1:bind 2:unbind
+	Apis []int64 `json:"apis" validate:"required"`           // api主键结合
+} // 菜单绑定/解绑api请求参数
 
+//@title 菜单绑定/解绑接口
+//@api post /sys/menu/api/:id
+//@group menu
+//@request menuBindApiRequest
+//@response 200 resp.resultOK{businesscode=10000,message="操作成功"}
 func (server *Server) mentBindApi(c *bytego.Ctx) error {
 	var (
 		req  menuBindApiRequest
@@ -412,12 +425,17 @@ func (server *Server) mentBindApi(c *bytego.Ctx) error {
 	return resp.OperateOK().JSON(c)
 }
 
-type mentApisRequest struct {
-	Menu int64 `param:"menu" validata:"required"`
-}
+type menuApisRequest struct {
+	Menu int64 `param:"menu" validata:"required"` // 菜单主键ID
+} // 获取菜单绑定的接口请求参数
 
+//@title 获取菜单绑定的接口接口
+//@api get /sys/menu/api/:menu
+//@group menu
+//@request menuApisRequest
+//@response 200 resp.resultOK{businesscode=10000,message="获取成功",data=[]int64}
 func (server *Server) MenuApis(c *bytego.Ctx) error {
-	var req mentApisRequest
+	var req menuApisRequest
 	if err := c.Bind(&req); err != nil {
 		return resp.BadRequestJSON(err, c)
 	}
@@ -431,8 +449,13 @@ func (server *Server) MenuApis(c *bytego.Ctx) error {
 
 type menuApiListRequest struct {
 	Menu int64 `param:"menu" validate:"required"`
-}
+} // 获取菜单对应的接口请求参数
 
+//@title 获取菜单对应的接口接口
+//@api get /sys/menu/api-list/:menu
+//@group menu
+//@request menuApiListRequest
+//@response 200 resp.resultOK{businesscode=10000,message="获取成功",data=[]db.Api}
 func (server *Server) MenuApiList(c *bytego.Ctx) error {
 	var req menuApiListRequest
 	if err := c.Bind(&req); err != nil {

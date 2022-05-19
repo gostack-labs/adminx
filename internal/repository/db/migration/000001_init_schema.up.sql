@@ -1,6 +1,6 @@
 -- SQL dump generated using DBML (dbml-lang.org)
 -- Database: PostgreSQL
--- Generated at: 2022-04-29T04:29:13.839Z
+-- Generated at: 2022-05-19T12:15:01.535Z
 
 CREATE TABLE "users" (
   "username" varchar PRIMARY KEY,
@@ -20,18 +20,6 @@ CREATE TABLE "sessions" (
   "client_ip" varchar NOT NULL,
   "is_blocked" boolean NOT NULL DEFAULT false,
   "expires_at" timestamptz NOT NULL,
-  "created_at" timestamptz NOT NULL DEFAULT (now())
-);
-
-CREATE TABLE "casbin_rule" (
-  "id" bigserial PRIMARY KEY,
-  "p_type" varchar NOT NULL,
-  "v0" varchar,
-  "v1" varchar,
-  "v2" varchar,
-  "v3" varchar,
-  "v4" varchar,
-  "v5" varchar,
   "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 

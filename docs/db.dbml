@@ -27,18 +27,6 @@ Table sessions {
     created_at timestamptz [not null,default: `now()`]
 }
 
-Table casbin_rule{
-    id bigserial [pk]
-    p_type varchar [not null]
-    v0 varchar
-    v1 varchar
-    v2 varchar
-    v3 varchar
-    v4 varchar
-    v5 varchar
-    created_at timestamptz [not null,default:`now()`]
-}
-
 
 Table roles as R{
     id bigserial [pk]
@@ -126,6 +114,5 @@ TableGroup system{ // 系统表
     apis
     api_groups
     menu_apis
-    casbin_rule
 }
 

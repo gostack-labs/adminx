@@ -16,12 +16,17 @@ import (
 )
 
 type listRoleRequest struct {
-	PageID   int32  `json:"page_id" validate:"required,min=1"`
-	PageSize int32  `json:"page_size" validate:"required,max=50"`
-	Name     string `json:"name"`
-	Key      string `json:"key"`
-}
+	PageID   int32  `json:"page_id" validate:"required,min=1"`    // 页码
+	PageSize int32  `json:"page_size" validate:"required,max=50"` // 页尺寸
+	Name     string `json:"name"`                                 // 名称
+	Key      string `json:"key"`                                  // 标识
+} // 分页获取角色列表请求参数
 
+//@title 分页获取角色列表接口
+//@api get /sys/role
+//@group role
+//@request listRoleRequest
+//@response 200 resp.resultOK{businesscode=10000,message="获取成功",data=[]db.Role}
 func (server *Server) listRole(c *bytego.Ctx) error {
 	var req listRoleRequest
 	if err := c.Bind(&req); err != nil {
@@ -43,13 +48,18 @@ func (server *Server) listRole(c *bytego.Ctx) error {
 }
 
 type createRoleRequest struct {
-	Name      string  `json:"name" validate:"required"`
-	IsDisable bool    `json:"is_disable"`
-	Key       string  `json:"key" validate:"required"`
-	Sort      int32   `json:"sort"`
-	Remark    *string `json:"remark"`
-}
+	Name      string  `json:"name" validate:"required"` // 名称
+	IsDisable bool    `json:"is_disable"`               // 是否禁用
+	Key       string  `json:"key" validate:"required"`  // 标识
+	Sort      int32   `json:"sort"`                     // 排序
+	Remark    *string `json:"remark"`                   // 备注
+} // 创建角色请求参数
 
+//@title 创建角色接口
+//@api post /sys/role
+//@group role
+//@request createRoleRequest
+//@response 200 resp.resultOK{businesscode=10000,message="创建成功"}
 func (server *Server) createRole(c *bytego.Ctx) error {
 	var req createRoleRequest
 	if err := c.Bind(&req); err != nil {
@@ -83,8 +93,13 @@ type updateRoleRequest struct {
 	Key       string  `json:"key" validate:"required"`
 	Sort      int32   `json:"sort"`
 	Remark    *string `json:"remark"`
-}
+} // 更新角色请求参数
 
+//@title 更新角色接口
+//@api put /sys/role/:id
+//@group role
+//@request updateRoleRequest
+//@response 200 resp.resultOK{businesscode=10000,message="更新成功"}
 func (server *Server) updateRole(c *bytego.Ctx) error {
 	var req updateRoleRequest
 	if err := c.Bind(&req); err != nil {
@@ -113,9 +128,14 @@ func (server *Server) updateRole(c *bytego.Ctx) error {
 }
 
 type deleteRoleRequest struct {
-	ID int64 `param:"id" validate:"required"`
-}
+	ID int64 `param:"id" validate:"required"` // 主键ID
+} // 删除角色请求参数
 
+//@title 删除角色接口
+//@api delete /sys/role/single/:id
+//@group role
+//@request deleteRoleRequest
+//@response 200 resp.resultOK{businesscode=10000,message="删除成功"}
 func (server *Server) deleteRole(c *bytego.Ctx) error {
 	var req deleteRoleRequest
 	if err := c.Bind(&req); err != nil {
@@ -148,9 +168,14 @@ func (server *Server) deleteRole(c *bytego.Ctx) error {
 }
 
 type batchDeleteRoleRequest struct {
-	IDs []int64 `json:"ids" validate:"required"`
-}
+	IDs []int64 `json:"ids" validate:"required"` // 主键集合
+} // 批量删除角色请求参数
 
+//@title 批量删除角色接口
+//@api delete /sys/role/batch
+//@group role
+//@request batchDeleteRoleRequest
+//@response 200 resp.resultOK{businesscode=10000,message="删除成功"}
 func (server *Server) batchDeleteRole(c *bytego.Ctx) error {
 	var req batchDeleteRoleRequest
 	if err := c.Bind(&req); err != nil {
@@ -183,10 +208,15 @@ func (server *Server) batchDeleteRole(c *bytego.Ctx) error {
 }
 
 type updateRolePermissionRequest struct {
-	ID        int64                     `param:"id" validate:"required"`
-	RoleMenus []db.CreateRoleMenuParams `json:"role_menus"`
-}
+	ID        int64                     `param:"id" validate:"required"` // 角色ID
+	RoleMenus []db.CreateRoleMenuParams `json:"role_menus"`              // 角色菜单集合
+} // 角色授权/解除菜单权限请求参数
 
+//@title 角色授权/解除菜单权限接口
+//@api post /sys/role/permission/:id
+//@group role
+//@request updateRolePermissionRequest
+//@response 200 resp.resultOK{businesscode=10000,message="操作成功"}
 func (server *Server) updateRolePermission(c *bytego.Ctx) error {
 	var (
 		req            updateRolePermissionRequest
@@ -260,13 +290,23 @@ func (server *Server) updateRolePermission(c *bytego.Ctx) error {
 			}
 		}
 	}
-	return resp.CreateOK().JSON(c)
+	return resp.OperateOK().JSON(c)
 }
 
 type getRolePermissionRequest struct {
-	ID int64 `param:"id" validate:"required"`
-}
+	ID int64 `param:"id" validate:"required"` // 角色ID
+} // 获取角色授权的菜单权限请求参数
 
+type getRolePermissionResponse struct {
+	Menu   []int64           `json:"menu"`
+	Button map[int64][]int64 `json:"button"`
+} //获取角色授权的菜单权限
+
+//@title 获取角色授权的菜单权限接口
+//@api get /sys/role/permission/:id
+//@group role
+//@request getRolePermissionRequest
+//@response 200 resp.resultOK{businesscode=10000,message="获取成功",data=getRolePermissionResponse}
 func (server *Server) getRolePermission(c *bytego.Ctx) error {
 	var req getRolePermissionRequest
 	if err := c.Bind(&req); err != nil {
@@ -301,18 +341,24 @@ func (server *Server) getRolePermission(c *bytego.Ctx) error {
 	for _, v := range menuButtons {
 		roleButtons[v.Parent] = append(roleButtons[v.Parent], v.ID)
 	}
-	return resp.GetOK(bytego.Map{
-		"menu":   roleMenus,
-		"button": roleButtons,
+
+	return resp.GetOK(getRolePermissionResponse{
+		Menu:   roleMenus,
+		Button: roleButtons,
 	}).JSON(c)
 }
 
 type roleApiPermissionRequest struct {
-	ID   int64   `param:"id" validate:"required"`
-	Type *int    `json:"type" validate:"required,oneof=0 1"` // 0:解除api权限 1:绑定api权限
-	Api  []int64 `json:"api" validate:"required"`
-}
+	ID   int64   `param:"id" validate:"required"`            // 角色ID
+	Type *int    `json:"type" validate:"required,oneof=0 1"` // 操作类型 0:解除api权限 1:绑定api权限
+	Api  []int64 `json:"api" validate:"required"`            // 接口ID集合
+} // 角色授权/解除接口权限请求参数
 
+//@title 角色授权/解除菜单权限接口
+//@api post /sys/role/api/:id
+//@group role
+//@request roleApiPermissionRequest
+//@response 200 resp.resultOK{businesscode=10000,message="操作成功"}
 func (server *Server) roleApiPermission(c *bytego.Ctx) error {
 	var req roleApiPermissionRequest
 	if err := c.Bind(&req); err != nil {
@@ -347,10 +393,15 @@ func (server *Server) roleApiPermission(c *bytego.Ctx) error {
 }
 
 type getRoleApiRequest struct {
-	ID   int64 `param:"id" validate:"required"`
-	Menu int64 `json:"menu" validate:"required"`
-}
+	ID   int64 `param:"id" validate:"required"`  // 角色ID
+	Menu int64 `json:"menu" validate:"required"` // 菜单ID
+} //
 
+//@title 获取角色授权的接口权限接口
+//@api get /sys/role/api/:id
+//@group role
+//@request getRoleApiRequest
+//@response 200 resp.resultOK{businesscode=10000,message="获取成功",data=[]int64} "接口ID集合"
 func (server *Server) getRoleApi(c *bytego.Ctx) error {
 	var (
 		req  getRoleApiRequest
