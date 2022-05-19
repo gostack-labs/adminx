@@ -15,19 +15,24 @@ import (
 )
 
 type logginUserRequest struct {
-	Username string `json:"username" validate:"required"`
-	Password string `json:"password" validate:"required,min=6"`
-}
+	Username string `json:"username" validate:"required"`       // 用户名，邮箱，手机号
+	Password string `json:"password" validate:"required,min=6"` // 密码
+} // 登录请求参数
 
 type logginUserResponse struct {
-	SessinID              uuid.UUID    `json:"session_id"`
-	AccessToken           string       `json:"access_token"`
-	AccessTokenExpiresAt  time.Time    `json:"access_token_expires_at"`
-	RefreshToken          string       `json:"refresh_token"`
-	RefreshTokenExpiresAt time.Time    `json:"refresh_token_expires_at"`
-	User                  userResponse `json:"user"`
-}
+	SessinID              uuid.UUID    `json:"session_id"`               // sessionID
+	AccessToken           string       `json:"access_token"`             // accessToken
+	AccessTokenExpiresAt  time.Time    `json:"access_token_expires_at"`  // accessToken 过期时间
+	RefreshToken          string       `json:"refresh_token"`            // 刷新token
+	RefreshTokenExpiresAt time.Time    `json:"refresh_token_expires_at"` // 刷新token 过期时间
+	User                  userResponse `json:"user"`                     // 用户信息
+} // 登录返回数据
 
+//@api post /signin
+//@title 用户登录接口
+//@request logginUserRequest
+//@response 200 resp.resultOK{code=10000,msg="操作成功",data=logginUserResponse}
+//@auther bytegolang
 func (server *Server) logginUser(c *bytego.Ctx) error {
 	var req logginUserRequest
 	if err := c.Bind(&req); err != nil {

@@ -10,12 +10,17 @@ import (
 )
 
 type listApiRequest struct {
-	Title    string `json:"title"`
-	Groups   int64  `json:"groups" validate:"required"`
-	PageID   int32  `json:"page_id" validate:"required,min=1"`
-	PageSize int32  `json:"page_size" validate:"required,min=5,max=50"`
-}
+	Title    string `json:"title"`                                      // 标题
+	Groups   int64  `json:"groups" validate:"required"`                 // 接口分组ID
+	PageID   int32  `json:"page_id" validate:"required,min=1"`          // 页码
+	PageSize int32  `json:"page_size" validate:"required,min=5,max=50"` // 页尺寸
+} // 分页获取api列表请求数据
 
+//@title 分页获取api列表接口
+//@api get /sys/api
+//@group api
+//@request listApiRequest
+//@response 200 resp.resultOK{code=10000,msg="获取成功",data=[]*db.Api}
 func (server *Server) listApi(c *bytego.Ctx) error {
 	var req listApiRequest
 	if err := c.Bind(&req); err != nil {

@@ -12,6 +12,10 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
+//@title adminx
+//@service adminx
+//@desc adminx服务相关接口
+//@baseurl /
 func main() {
 	configs.LoadConfig()
 	cache, err := redis.New()

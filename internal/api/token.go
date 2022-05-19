@@ -13,14 +13,18 @@ import (
 )
 
 type renewAccessTokenRequest struct {
-	RefreshToken string `json:"refresh_token" validate:"required"`
-}
+	RefreshToken string `json:"refresh_token" validate:"required"` // 刷新token
+} // 刷新token请求数据
 
 type renewAccessTokenResponse struct {
-	AccessToken          string    `json:"access_token"`
-	AccessTokenExpiresAt time.Time `json:"access_token_expires_at"`
-}
+	AccessToken          string    `json:"access_token"`            // accessToken
+	AccessTokenExpiresAt time.Time `json:"access_token_expires_at"` // accessToken 过期时间
+} // 刷新token返回数据
 
+//@api post /tokens/renew_access
+//@title 刷新token接口
+//@request renewAccessTokenRequest
+//@response 200 resp.resultOK{code=10000,msg="操作成功",data=renewAccessTokenResponse}
 func (server *Server) renewAccessToken(c *bytego.Ctx) error {
 	var req renewAccessTokenRequest
 	if err := c.Bind(&req); err != nil {
