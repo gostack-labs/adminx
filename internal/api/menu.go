@@ -105,6 +105,10 @@ func (m *MenuTree) GetMenuTree() []*MenuValue {
 	return topMenuList
 }
 
+//@title 获取菜单树接口
+//@api get /sys/menu/tree
+//@group menu
+//@response 200 resp.resultOK{businesscode=10000,message="获取成功",data=bytego.Map{"menu":[]MenuValue,"button": map[int64][]db.Menu}}
 func (server *Server) menuTree(c *bytego.Ctx) error {
 	var (
 		err        error
@@ -136,38 +140,28 @@ func (server *Server) menuTree(c *bytego.Ctx) error {
 }
 
 type createMenuRequest struct {
-	// 父级
-	Parent int64 `json:"parent" validate:"required,numeric"`
-	// 标题
-	Title string `json:"title" validate:"required"`
-	// 路径
-	Path *string `json:"path"`
-	// 路由名称
-	Name string `json:"name" validate:"required"`
-	// 组件路径
-	Component *string `json:"component"`
-	// 跳转路径
-	Redirect *string `json:"redirect"`
-	// 超链接
-	Hyperlink *string `json:"hyperlink"`
-	// 是否隐藏
-	IsHide bool `json:"is_hide"`
-	// 是否缓存组件状态
-	IsKeepAlive bool `json:"is_keep_alive"`
-	// 是否固定在标签栏
-	IsAffix bool `json:"is_affix"`
-	// 是否内嵌窗口
-	IsIframe bool `json:"is_iframe"`
-	// 权限粒子
-	Auth []string `json:"auth"`
-	// 图标
-	Icon *string `json:"icon"`
-	// 类型：1 目录，2 菜单，3 按钮
-	Type int32 `json:"type" validate:"oneof=1 2 3"`
-	// 顺序
-	Sort int32 `json:"sort"`
-}
+	Parent      int64    `json:"parent" validate:"required,numeric"` // 父级
+	Title       string   `json:"title" validate:"required"`          // 标题
+	Path        *string  `json:"path"`                               // 路径
+	Name        string   `json:"name" validate:"required"`           // 路由名称
+	Component   *string  `json:"component"`                          // 组件路径
+	Redirect    *string  `json:"redirect"`                           // 跳转路径
+	Hyperlink   *string  `json:"hyperlink"`                          // 超链接
+	IsHide      bool     `json:"is_hide"`                            // 是否隐藏
+	IsKeepAlive bool     `json:"is_keep_alive"`                      // 是否缓存组件状态
+	IsAffix     bool     `json:"is_affix"`                           // 是否固定在标签栏
+	IsIframe    bool     `json:"is_iframe"`                          // 是否内嵌窗口
+	Auth        []string `json:"auth"`                               // 权限粒子
+	Icon        *string  `json:"icon"`                               // 图标
+	Type        int32    `json:"type" validate:"oneof=1 2 3"`        // 类型：1 目录，2 菜单，3 按钮
+	Sort        int32    `json:"sort"`                               // 顺序
+} // 新增菜单请求参数
 
+//@title 新增菜单接口
+//@api post /sys/menu
+//@group menu
+//@request createMenuRequest
+//@response 200 resp.resultOK{businesscode=10000,message="创建成功"}
 func (server *Server) createMenu(c *bytego.Ctx) error {
 	var req createMenuRequest
 

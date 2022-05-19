@@ -1,19 +1,19 @@
-# 接口管理相关接口
+# 接口分组管理相关接口
 
-接口管理相关接口
+接口分组管理相关接口
 
-1. [分页获取api列表接口](#1-分页获取api列表接口)
-2. [新增api接口](#2-新增api接口)
-3. [更新api接口](#3-更新api接口)
-4. [删除api接口](#4-删除api接口)
-5. [批量删除api接口](#5-批量删除api接口)
+1. [分页获取接口分组接口](#1-分页获取接口分组接口)
+2. [新增接口分组接口](#2-新增接口分组接口)
+3. [更新接口分组接口](#3-更新接口分组接口)
+4. [删除接口分组接口](#4-删除接口分组接口)
+5. [新增接口分组接口](#5-新增接口分组接口)
 
 ## apis
 
-### 1. 分页获取api列表接口
+### 1. 分页获取接口分组接口
 
 ```text
-GET /sys/api
+GET /sys/api-group
 ```
 
 __Response__:
@@ -22,15 +22,12 @@ __Response__:
 //StatusCode: 200 
 {  //object(resp.resultOK)
   "code": 10000,  //int
-  "data": [  //array[db.Api]
-    {  //object(db.Api)
+  "data": [  //array[db.ApiGroup]
+    {  //object(db.ApiGroup)
       "created_at": "2022-05-16T16:47:48.741899+08:00",  //object(time.Time)
-      "groups": 123,  //int64
       "id": 123,  //int64
-      "method": "abc",  //string
-      "remark": "abc",  //string
-      "title": "abc",  //string
-      "url": "abc"  //string
+      "name": "abc",  //string
+      "remark": "abc"  //string
     }
   ],
   "msg": "获取成功"  //string
@@ -39,10 +36,10 @@ __Response__:
 
 ---
 
-### 2. 新增api接口
+### 2. 新增接口分组接口
 
 ```text
-POST /sys/api
+POST /sys/api-group
 ```
 
 __Response__:
@@ -57,10 +54,10 @@ __Response__:
 
 ---
 
-### 3. 更新api接口
+### 3. 更新接口分组接口
 
 ```text
-PUT /sys/api/:id
+PUT /sys/api-group/:id
 ```
 
 __Request__:
@@ -72,12 +69,9 @@ __id__|_param_|int64|true|required||主键ID
 _body_:
 
 ```javascript
-{  //object(api.updateApiRequest), 更新api请求参数
-  "groups": 123,  //int64, required, 所属接口分组
-  "method": "abc",  //string, required, 请求方式
-  "remark": "abc",  //string, 备注
-  "title": "abc",  //string, required, 标题
-  "url": "abc"  //string, required, 接口地址
+{  //object(api.updateApiGroupRequest), 更新接口分组请求参数
+  "name": "abc",  //string, required, 接口分组名称
+  "remark": "abc"  //string, required, 备注
 }
 ```
 
@@ -93,17 +87,17 @@ __Response__:
 
 ---
 
-### 4. 删除api接口
+### 4. 删除接口分组接口
 
 ```text
-DELETE /sys/api/single/:id
+DELETE /sys/api-group/single/:id
 ```
 
 __Request__:
 
 parameter|parameterType|dataType|required|validate|example|description
 --|:-:|:-:|:-:|--|--|--
-__id__|_param_|int64|true|required||主键ID
+__id__|_param_|int64|true|required||
 
 __Response__:
 
@@ -117,10 +111,10 @@ __Response__:
 
 ---
 
-### 5. 批量删除api接口
+### 5. 新增接口分组接口
 
 ```text
-DELETE /sys/api/batch
+DELETE /sys/api-group/batch
 ```
 
 __Response__:

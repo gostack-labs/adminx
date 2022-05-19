@@ -22,6 +22,7 @@ type renewAccessTokenResponse struct {
 } // 刷新token返回数据
 
 //@api post /tokens/renew_access
+//@group basic
 //@title 刷新token接口
 //@request renewAccessTokenRequest
 //@response 200 resp.resultOK{code=10000,msg="操作成功",data=renewAccessTokenResponse}

@@ -29,6 +29,7 @@ type logginUserResponse struct {
 } // 登录返回数据
 
 //@api post /signin
+//@group basic
 //@title 用户登录接口
 //@request logginUserRequest
 //@response 200 resp.resultOK{code=10000,msg="操作成功",data=logginUserResponse}
