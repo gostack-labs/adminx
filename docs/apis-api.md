@@ -31,7 +31,7 @@ __Response__:
       "url": "abc"  //string
     }
   ],
-  "msg": "abc"  //string
+  "msg": "获取成功"  //string
 }
 ```
 
@@ -49,7 +49,7 @@ __Response__:
 //StatusCode: 200 
 {  //object(resp.resultOK)
   "code": 123,  //int
-  "msg": "abc"  //string
+  "msg": "创建成功"  //string
 }
 ```
 
@@ -85,7 +85,7 @@ __Response__:
 //StatusCode: 200 
 {  //object(resp.resultOK)
   "code": 123,  //int
-  "msg": "abc"  //string
+  "msg": "修改成功"  //string
 }
 ```
 
@@ -127,7 +127,7 @@ __Response__:
 //StatusCode: 200 
 {  //object(resp.resultOK)
   "code": 123,  //int
-  "msg": "abc"  //string
+  "msg": "删除成功"  //string
 }
 ```
 

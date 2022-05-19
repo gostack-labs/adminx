@@ -20,7 +20,7 @@ type listApiRequest struct {
 //@api get /sys/api
 //@group api
 //@request listApiRequest
-//@response 200 resp.resultOK{code=10000,msg="获取成功",data=[]db.Api}
+//@response 200 resp.resultOK{businessCode=10000,message="获取成功",data=[]db.Api}
 func (server *Server) listApi(c *bytego.Ctx) error {
 	var req listApiRequest
 	if err := c.Bind(&req); err != nil {
@@ -51,7 +51,7 @@ type createApiRequest struct {
 //@api post /sys/api
 //@group api
 //@request createApiRequest
-//@response 200 resp.resultOK{code=10000,msg="创建成功"}
+//@response 200 resp.resultOK{businessCode=10000,message="创建成功"}
 func (server *Server) createApi(c *bytego.Ctx) error {
 	var req createApiRequest
 	if err := c.Bind(&req); err != nil {
@@ -103,7 +103,7 @@ type updateApiRequest struct {
 //@api put /sys/api/:id
 //@group api
 //@request updateApiRequest
-//@response 200 resp.resultOK{code=10000,msg="修改成功"}
+//@response 200 resp.resultOK{businessCode=10000,message="修改成功"}
 func (server *Server) updateApi(c *bytego.Ctx) error {
 	var req updateApiRequest
 	if err := c.Bind(&req); err != nil {
@@ -181,7 +181,7 @@ type batchDeleteApiRequest struct {
 //@api delete /sys/api/batch
 //@group api
 //@request batchDeleteApiRequest
-//@response 200 resp.resultOK{code=10000,msg="删除成功"}
+//@response 200 resp.resultOK{businessCode=10000,message="删除成功"}
 func (server *Server) batchDeleteApi(c *bytego.Ctx) error {
 	var req batchDeleteApiRequest
 	if err := c.Bind(&req); err != nil {
