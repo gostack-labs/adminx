@@ -12,10 +12,10 @@ import (
 )
 
 type listApiGroupRequest struct {
-	Key      string `json:"key"`
-	PageID   int32  `json:"page_id" validate:"required,min=1"`
-	PageSize int32  `json:"page_size" validate:"required,min=5,max=50"`
-}
+	Key      string `json:"key"`                                        // 查询关键字(标题和备注模糊查询)
+	PageID   int32  `json:"page_id" validate:"required,min=1"`          // 页码
+	PageSize int32  `json:"page_size" validate:"required,min=5,max=50"` // 页尺寸
+} // 分页获取接口分组列表请求参数
 
 func (server *Server) listApiGroup(c *bytego.Ctx) error {
 	var req listApiGroupRequest
