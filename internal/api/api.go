@@ -20,7 +20,7 @@ type listApiRequest struct {
 //@api get /sys/api
 //@group api
 //@request listApiRequest
-//@response 200 resp.resultOK{code=10000,msg="获取成功",data=[]*db.Api}
+//@response 200 resp.resultOK{code=10000,msg="获取成功",data=[]db.Api}
 func (server *Server) listApi(c *bytego.Ctx) error {
 	var req listApiRequest
 	if err := c.Bind(&req); err != nil {
@@ -40,13 +40,18 @@ func (server *Server) listApi(c *bytego.Ctx) error {
 }
 
 type createApiRequest struct {
-	Title  string `json:"title" validate:"required"`
-	Url    string `json:"url" validate:"required"`
-	Method string `json:"method" validate:"required"`
-	Groups int64  `json:"groups" validate:"required"`
-	Remark string `json:"remark"`
-}
+	Title  string `json:"title" validate:"required"`  // 标题
+	Url    string `json:"url" validate:"required"`    // 接口地址
+	Method string `json:"method" validate:"required"` // 请求方式
+	Groups int64  `json:"groups" validate:"required"` // 所属接口分组
+	Remark string `json:"remark"`                     // 备注
+} // 新增api请求参数
 
+//@title 新增api接口
+//@api post /sys/api
+//@group api
+//@request createApiRequest
+//@response 200 resp.resultOK{code=10000,msg="创建成功"}
 func (server *Server) createApi(c *bytego.Ctx) error {
 	var req createApiRequest
 	if err := c.Bind(&req); err != nil {
@@ -86,14 +91,19 @@ func (server *Server) createApi(c *bytego.Ctx) error {
 }
 
 type updateApiRequest struct {
-	ID     int64  `param:"id" validate:"required"`
-	Title  string `json:"title" validate:"required"`
-	Url    string `json:"url" validate:"required"`
-	Method string `json:"method" validate:"required"`
-	Groups int64  `json:"groups" validate:"required"`
-	Remark string `json:"remark"`
-}
+	ID     int64  `param:"id" validate:"required"`    // 主键ID
+	Title  string `json:"title" validate:"required"`  // 标题
+	Url    string `json:"url" validate:"required"`    // 接口地址
+	Method string `json:"method" validate:"required"` // 请求方式
+	Groups int64  `json:"groups" validate:"required"` // 所属接口分组
+	Remark string `json:"remark"`                     // 备注
+} // 更新api请求参数
 
+//@title 更新api接口
+//@api put /sys/api/:id
+//@group api
+//@request updateApiRequest
+//@response 200 resp.resultOK{code=10000,msg="修改成功"}
 func (server *Server) updateApi(c *bytego.Ctx) error {
 	var req updateApiRequest
 	if err := c.Bind(&req); err != nil {
@@ -134,9 +144,14 @@ func (server *Server) updateApi(c *bytego.Ctx) error {
 }
 
 type deleteApiRequest struct {
-	ID int64 `param:"id" validate:"required"`
-}
+	ID int64 `param:"id" validate:"required"` // 主键ID
+} // 删除api请求参数
 
+//@title 删除api接口
+//@api delete /sys/api/single/:id
+//@group api
+//@request deleteApiRequest
+//@response 200 resp.resultOK{BussinessCode=10000,Message="删除成功"}
 func (server *Server) deleteApi(c *bytego.Ctx) error {
 	var req deleteApiRequest
 	if err := c.Bind(&req); err != nil {
@@ -159,9 +174,14 @@ func (server *Server) deleteApi(c *bytego.Ctx) error {
 }
 
 type batchDeleteApiRequest struct {
-	IDs []int64 `json:"ids" validate:"required"`
-}
+	IDs []int64 `json:"ids" validate:"required"` // 主键集合
+} // 批量删除api请求参数
 
+//@title 批量删除api接口
+//@api delete /sys/api/batch
+//@group api
+//@request batchDeleteApiRequest
+//@response 200 resp.resultOK{code=10000,msg="删除成功"}
 func (server *Server) batchDeleteApi(c *bytego.Ctx) error {
 	var req batchDeleteApiRequest
 	if err := c.Bind(&req); err != nil {
