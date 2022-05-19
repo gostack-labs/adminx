@@ -26,13 +26,14 @@ type cache struct {
 }
 
 func New() (Store, error) {
+	var redisConf = configs.Get().Redis
 	client := redis.NewClient(&redis.Options{
-		Addr:         configs.Config.Redis.Addr,
-		Password:     configs.Config.Redis.Pass,
-		DB:           configs.Config.Redis.Db,
-		MaxRetries:   configs.Config.Redis.MaxRetries,
-		PoolSize:     configs.Config.Redis.PoolSize,
-		MinIdleConns: configs.Config.Redis.MinIdleConns,
+		Addr:         redisConf.Addr,
+		Password:     redisConf.Pass,
+		DB:           redisConf.Db,
+		MaxRetries:   redisConf.MaxRetries,
+		PoolSize:     redisConf.PoolSize,
+		MinIdleConns: redisConf.MinIdleConns,
 	})
 
 	if err := client.Ping(context.Background()).Err(); err != nil {

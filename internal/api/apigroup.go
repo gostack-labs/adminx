@@ -4,7 +4,9 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/gostack-labs/adminx/internal/code"
 	db "github.com/gostack-labs/adminx/internal/repository/db/sqlc"
+	"github.com/gostack-labs/adminx/internal/resp"
 	"github.com/gostack-labs/bytego"
 	"github.com/jackc/pgconn"
 )
@@ -18,7 +20,7 @@ type listApiGroupRequest struct {
 func (server *Server) listApiGroup(c *bytego.Ctx) error {
 	var req listApiGroupRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 	arg := db.ListApiGroupParams{
 		Key:        req.Key,
@@ -27,10 +29,9 @@ func (server *Server) listApiGroup(c *bytego.Ctx) error {
 	}
 	list, err := server.store.ListApiGroup(c.Context(), arg)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
-
-	return c.JSON(http.StatusOK, list)
+	return resp.GetOK(list).JSON(c)
 }
 
 type createApiGroupRequest struct {
@@ -41,7 +42,7 @@ type createApiGroupRequest struct {
 func (server *Server) createApiGroup(c *bytego.Ctx) error {
 	var req createApiGroupRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 	arg := db.CreateApiGroupParams{
 		Name:   req.Name,
@@ -52,12 +53,12 @@ func (server *Server) createApiGroup(c *bytego.Ctx) error {
 		var pgxerr *pgconn.PgError
 		if errors.As(err, &pgxerr) {
 			if pgxerr.Code == "23505" {
-				return c.JSON(http.StatusForbidden, errorResponse(err))
+				return resp.Fail(http.StatusFound, code.ApiGroupExistError).JSON(c)
 			}
 		}
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
-	return c.JSON(http.StatusOK, bytego.Map{"success": true, "message": "添加成功"})
+	return resp.CreateOK().JSON(c)
 }
 
 type updateApiGroupRequest struct {
@@ -69,7 +70,7 @@ type updateApiGroupRequest struct {
 func (server *Server) updateApiGroup(c *bytego.Ctx) error {
 	var req updateApiGroupRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 	arg := db.UpdateApiGroupParams{
 		Name:   req.Name,
@@ -81,12 +82,12 @@ func (server *Server) updateApiGroup(c *bytego.Ctx) error {
 		var pgxerr *pgconn.PgError
 		if errors.As(err, &pgxerr) {
 			if pgxerr.Code == "23505" {
-				return c.JSON(http.StatusForbidden, errorResponse(err))
+				return resp.Fail(http.StatusFound, code.ApiGroupExistError).JSON(c)
 			}
 		}
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
-	return c.JSON(http.StatusOK, bytego.Map{"success": true, "message": "修改成功"})
+	return resp.UpdateOK().JSON(c)
 }
 
 type deleteApiGroupRequest struct {
@@ -96,20 +97,20 @@ type deleteApiGroupRequest struct {
 func (server *Server) deleteApiGroup(c *bytego.Ctx) error {
 	var req deleteApiGroupRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 	apiList, err := server.store.ListApiByGroup(c.Context(), []int64{req.ID})
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 	if len(apiList) > 0 {
-		return c.JSON(http.StatusForbidden, errorResponse(errors.New("The api group has apis and cannot be deleted directly")))
+		return resp.Fail(http.StatusFound, code.ApiGroupHasApiError).JSON(c)
 	}
 	err = server.store.DeleteApiGroup(c.Context(), []int64{req.ID})
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
-	return c.JSON(http.StatusOK, bytego.Map{"success": true, "message": "删除成功"})
+	return resp.DelOK().JSON(c)
 }
 
 type batchDeleteApiGroupRequest struct {
@@ -119,18 +120,18 @@ type batchDeleteApiGroupRequest struct {
 func (server *Server) batchDeleteApiGroup(c *bytego.Ctx) error {
 	var req batchDeleteApiGroupRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 	apiList, err := server.store.ListApiByGroup(c.Context(), req.IDs)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 	if len(apiList) > 0 {
-		return c.JSON(http.StatusForbidden, errorResponse(errors.New("The api group has apis and cannot be deleted directly")))
+		return resp.Fail(http.StatusFound, code.ApiGroupHasApiError).JSON(c)
 	}
 	err = server.store.DeleteApiGroup(c.Context(), req.IDs)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
-	return c.JSON(http.StatusOK, bytego.Map{"success": true, "message": "删除成功"})
+	return resp.DelOK().JSON(c)
 }

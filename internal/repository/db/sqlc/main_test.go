@@ -14,8 +14,8 @@ var testQueries *Queries
 
 func TestMain(m *testing.M) {
 	configs.LoadConfig()
-	log.Print(configs.Config.DB.Source)
-	testDB, err := pgx.Connect(context.Background(), configs.Config.DB.Source)
+	log.Print(configs.Get().DB.Source)
+	testDB, err := pgx.Connect(context.Background(), configs.Get().DB.Source)
 	if err != nil {
 		log.Fatal("connot connect to db:", err)
 	}

@@ -21,7 +21,7 @@ func main() {
 
 	permission.Casbin()
 
-	conn, err := pgx.Connect(context.Background(), configs.Config.DB.Source)
+	conn, err := pgx.Connect(context.Background(), configs.Get().DB.Source)
 	if err != nil {
 		log.Fatal("connot connect to db:", err)
 	}
@@ -31,7 +31,7 @@ func main() {
 		log.Fatal("cannot create server:", err)
 	}
 
-	err = server.Start(configs.Config.Server.Addr)
+	err = server.Start(configs.Get().Server.Addr)
 	if err != nil {
 		log.Fatal("connot start server:", err)
 	}

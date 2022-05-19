@@ -5,6 +5,9 @@ import (
 
 	"github.com/casbin/casbin/v2"
 	"github.com/gostack-labs/adminx/configs"
+	"github.com/gostack-labs/adminx/internal/code"
+	"github.com/gostack-labs/adminx/internal/middleware/auth"
+	"github.com/gostack-labs/adminx/internal/resp"
 	"github.com/gostack-labs/bytego"
 	"github.com/jackc/pgx/v4"
 	pgxAdapter "github.com/pckhoi/casbin-pgx-adapter"
@@ -13,11 +16,11 @@ import (
 var Enforcer *casbin.SyncedEnforcer
 
 func Casbin() *casbin.SyncedEnforcer {
-	cc, _ := pgx.ParseConfig(configs.Config.DB.Source)
-	a, _ := pgxAdapter.NewAdapter(cc, pgxAdapter.WithTableName(configs.Config.Casbin.TableName), pgxAdapter.WithDatabase(configs.Config.Casbin.DBName))
-	Enforcer, _ = casbin.NewSyncedEnforcer(configs.Config.Casbin.RbacModel, a)
+	cc, _ := pgx.ParseConfig(configs.Get().DB.Source)
+	a, _ := pgxAdapter.NewAdapter(cc, pgxAdapter.WithTableName(configs.Get().Casbin.TableName), pgxAdapter.WithDatabase(configs.Get().Casbin.DBName))
+	Enforcer, _ = casbin.NewSyncedEnforcer(configs.Get().Casbin.RbacModel, a)
 	_ = Enforcer.LoadPolicy()
-	Enforcer.StartAutoLoadPolicy(configs.Config.Casbin.IntervalTime)
+	Enforcer.StartAutoLoadPolicy(configs.Get().Casbin.IntervalTime)
 	return Enforcer
 }
 
@@ -27,12 +30,12 @@ func CheckPermMiddleware() bytego.HandlerFunc {
 
 		act := c.Request.Method
 
-		sub, exist := c.Get("username")
+		sub, exist := c.Get(auth.AuthorizationPayloadKey)
 		if !exist {
-			c.AbortWithStatus(http.StatusNoContent)
+			return resp.Fail(http.StatusUnauthorized, code.RBACError).AbortJSON(c)
 		}
 		if ok, _ := Enforcer.Enforce(sub, obj, act); !ok {
-			c.Abort()
+			return resp.Fail(http.StatusUnauthorized, code.RBACError).AbortJSON(c)
 		}
 		return c.Next()
 	}

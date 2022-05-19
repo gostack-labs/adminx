@@ -6,7 +6,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gostack-labs/adminx/internal/code"
 	db "github.com/gostack-labs/adminx/internal/repository/db/sqlc"
+	"github.com/gostack-labs/adminx/internal/resp"
 	"github.com/gostack-labs/adminx/internal/utils"
 	"github.com/gostack-labs/adminx/internal/verifycode"
 	"github.com/gostack-labs/bytego"
@@ -45,35 +47,35 @@ func newUserResponse(user *db.User) userResponse {
 func (server *Server) signup(c *bytego.Ctx) error {
 	var req SignupRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 
 	hashedPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 
 	if strings.TrimSpace(req.Email) != "" {
 		if ok := verifycode.NewVerifyCode().CheckAnswer(req.Email, req.VerifyCode); !ok {
-			return c.JSON(http.StatusBadRequest, errorResponse(errors.New("验证码输入错误或已过期")))
+			return resp.Fail(http.StatusBadRequest, code.VerifyCodeError).JSON(c)
 		}
 		b, err := server.store.CheckUserEmail(c.Context(), req.Email)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, errorResponse(err))
+			return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 		}
 		if b {
-			return c.JSON(http.StatusForbidden, bytego.Map{"error": "该邮箱已存在！"})
+			return resp.Fail(http.StatusFound, code.UserEmailExistError).JSON(c)
 		}
 	}
 
 	if strings.TrimSpace(req.Phone) != "" {
 		b, err := server.store.CheckUserPhone(c.Context(), req.Phone)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, errorResponse(err))
+			return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 		}
 
 		if b {
-			return c.JSON(http.StatusForbidden, bytego.Map{"error": "该手机号已存在！"})
+			return resp.Fail(http.StatusFound, code.UserPhoneExistError).JSON(c)
 		}
 	}
 
@@ -90,13 +92,13 @@ func (server *Server) signup(c *bytego.Ctx) error {
 		var pgxerr *pgconn.PgError
 		if errors.As(err, &pgxerr) {
 			if pgxerr.Code == "23505" {
-				return c.JSON(http.StatusForbidden, errorResponse(err))
+				return resp.Fail(http.StatusFound, code.UserUsernameExistError).JSON(c)
 			}
 		}
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 	rsp := newUserResponse(user)
-	return c.JSON(http.StatusOK, rsp)
+	return resp.OperateOK(rsp).JSON(c)
 }
 
 type VerifyCodeEmailRequest struct {
@@ -106,14 +108,11 @@ type VerifyCodeEmailRequest struct {
 func (s *Server) sendUsingEmail(c *bytego.Ctx) error {
 	var req VerifyCodeEmailRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 	err := verifycode.NewVerifyCode().SendEmail(req.Email)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.SendEmailError).WithError(err).JSON(c)
 	}
-	return c.JSON(http.StatusOK, bytego.Map{
-		"success": true,
-		"message": "发送成功",
-	})
+	return resp.OperateOK().JSON(c)
 }

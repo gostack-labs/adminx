@@ -38,11 +38,12 @@ func (vc *VerifyCode) SendEmail(email string) error {
 	if err != nil {
 		return err
 	}
+	var mailConfig = configs.Get().Mail
 	err = mail.Send(&mail.Options{
-		MailHost: configs.Config.Mail.Host,
-		MailPort: configs.Config.Mail.Port,
-		MailUser: configs.Config.Mail.User,
-		MailPass: configs.Config.Mail.Pass,
+		MailHost: mailConfig.Host,
+		MailPort: mailConfig.Port,
+		MailUser: mailConfig.User,
+		MailPass: mailConfig.Pass,
 		MailTo:   email,
 		Subject:  subject,
 		Body:     body,

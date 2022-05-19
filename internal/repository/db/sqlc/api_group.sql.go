@@ -9,6 +9,18 @@ import (
 	"context"
 )
 
+const checkGroupExist = `-- name: CheckGroupExist :one
+SELECT count(*)>0 FROM api_groups
+WHERE id = $1
+`
+
+func (q *Queries) CheckGroupExist(ctx context.Context, id int64) (bool, error) {
+	row := q.db.QueryRow(ctx, checkGroupExist, id)
+	var column_1 bool
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const createApiGroup = `-- name: CreateApiGroup :exec
 INSERT INTO api_groups (
     name,remark

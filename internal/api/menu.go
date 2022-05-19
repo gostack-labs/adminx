@@ -1,10 +1,11 @@
 package api
 
 import (
-	"errors"
 	"net/http"
 
+	"github.com/gostack-labs/adminx/internal/code"
 	db "github.com/gostack-labs/adminx/internal/repository/db/sqlc"
+	"github.com/gostack-labs/adminx/internal/resp"
 	"github.com/gostack-labs/bytego"
 	"github.com/jackc/pgx/v4"
 )
@@ -114,24 +115,24 @@ func (server *Server) menuTree(c *bytego.Ctx) error {
 	)
 	menus, err = server.store.ListMenusByType(c.Context(), []int32{1, 2})
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 	m = MenuTree{Menus: menus}
 	result = m.GetMenuTree()
 
 	buttonList, err = server.store.ListMenusByType(c.Context(), []int32{3})
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 
 	buttonMap := make(map[int64][]*db.Menu)
 	for _, b := range buttonList {
 		buttonMap[b.Parent] = append(buttonMap[b.Parent], b)
 	}
-	return c.JSON(http.StatusOK, bytego.Map{
+	return resp.GetOK(bytego.Map{
 		"menu":   result,
 		"button": buttonMap,
-	})
+	}).JSON(c)
 }
 
 type createMenuRequest struct {
@@ -171,7 +172,7 @@ func (server *Server) createMenu(c *bytego.Ctx) error {
 	var req createMenuRequest
 
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 
 	arg := db.CreateMenuParams{
@@ -193,44 +194,45 @@ func (server *Server) createMenu(c *bytego.Ctx) error {
 	}
 	if req.Parent == 0 {
 		if req.Type == 3 {
-			return c.JSON(http.StatusInternalServerError, errorResponse(errors.New("根目录类型有误")))
+			return resp.Fail(http.StatusBadRequest, code.MenuRootTypeError).JSON(c)
 		} else {
 			menu, err := server.store.CreateMenu(c.Context(), arg)
 			if err != nil {
-				return c.JSON(http.StatusInternalServerError, errorResponse(err))
+				return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 			}
-			return c.JSON(http.StatusOK, menu)
+			return resp.CreateOK(menu).JSON(c)
 		}
 	}
 	m, err := server.store.GetMenuByID(c.Context(), req.Parent)
 	if err != nil {
 		if err == pgx.ErrNoRows {
-			return c.JSON(http.StatusNotFound, errorResponse(err))
+			return resp.Fail(http.StatusNotFound, code.MenuParentNoRowError).JSON(c)
 		}
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 
+	bussinessCode := 0
 	switch m.Type {
 	case 1:
 		if req.Type == 3 {
-			err = errors.New("目录下不允许创建按钮权限")
+			bussinessCode = code.MenuNoButtonError
 		}
 	case 2:
 		if req.Type == 1 || req.Type == 2 {
-			err = errors.New("菜单下不允许创建目录或子菜单")
+			bussinessCode = code.MenuNoDirOrMenuError
 		}
 	case 3:
-		err = errors.New("按钮下不允许创建子节点")
+		bussinessCode = code.MenuNoChildNodeError
 	}
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+	if bussinessCode > 0 {
+		return resp.Fail(http.StatusBadRequest, bussinessCode).JSON(c)
 	}
 
 	menu, err := server.store.CreateMenu(c.Context(), arg)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
-	return c.JSON(http.StatusOK, menu)
+	return resp.CreateOK(menu).JSON(c)
 }
 
 type updateMenuRequest struct {
@@ -265,7 +267,7 @@ type updateMenuRequest struct {
 func (server *Server) updateMenu(c *bytego.Ctx) error {
 	var req updateMenuRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 	arg := db.UpdateMenuParams{
 		ID:          req.ID,
@@ -285,9 +287,9 @@ func (server *Server) updateMenu(c *bytego.Ctx) error {
 	}
 	menu, err := server.store.UpdateMenu(c.Context(), arg)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
-	return c.JSON(http.StatusOK, menu)
+	return resp.UpdateOK(menu).JSON(c)
 }
 
 type deleteMenuRequest struct {
@@ -297,25 +299,21 @@ type deleteMenuRequest struct {
 func (server *Server) deleteMenu(c *bytego.Ctx) error {
 	var req deleteMenuRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 	// Check whether child nodes exist. If yes, they cannot be deleted
 	menuCount, err := server.store.CountMenusByParent(c.Context(), []int64{req.ID})
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 	if menuCount > 0 {
-		return c.JSON(http.StatusForbidden, errorResponse(errors.New("The current menu has child nodes and cannot be deleted directly")))
+		return resp.Fail(http.StatusFound, code.MenuHasChildNodeError).JSON(c)
 	}
 	err = server.store.DeleteMenu(c.Context(), []int64{req.ID})
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
-
-	return c.JSON(http.StatusOK, bytego.Map{
-		"success": true,
-		"message": "删除成功",
-	})
+	return resp.DelOK().JSON(c)
 }
 
 type batchDeleteMenuRequest struct {
@@ -325,24 +323,20 @@ type batchDeleteMenuRequest struct {
 func (server *Server) batchDeleteMenu(c *bytego.Ctx) error {
 	var req batchDeleteMenuRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 	menuCount, err := server.store.CountMenusByParent(c.Context(), req.IDs)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 	if menuCount > 0 {
-		return c.JSON(http.StatusForbidden, errorResponse(errors.New("The current menu has child nodes and cannot be deleted directly")))
+		return resp.Fail(http.StatusFound, code.MenuHasChildNodeError).JSON(c)
 	}
 	err = server.store.DeleteMenu(c.Context(), req.IDs)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).JSON(c)
 	}
-
-	return c.JSON(http.StatusOK, bytego.Map{
-		"success": true,
-		"message": "删除成功",
-	})
+	return resp.DelOK().JSON(c)
 }
 
 // 查询菜单下的所有按钮
@@ -353,13 +347,13 @@ type menuButtonRequest struct {
 func (server *Server) menuButton(c *bytego.Ctx) error {
 	var req menuButtonRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 	buttonList, err := server.store.ListMenuByParent(c.Context(), req.ID)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
-	return c.JSON(http.StatusOK, buttonList)
+	return resp.GetOK(buttonList).JSON(c)
 }
 
 type menuBindApiRequest struct {
@@ -375,13 +369,13 @@ func (server *Server) mentBindApi(c *bytego.Ctx) error {
 	)
 
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 
 	if req.Type == 1 {
 		existApis, err := server.store.ListMenuApiForApiByMenu(c.Context(), req.ID)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, errorResponse(err))
+			return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 		}
 		apiMaps := make(map[int64]struct{})
 		if len(existApis) != 0 {
@@ -407,7 +401,7 @@ func (server *Server) mentBindApi(c *bytego.Ctx) error {
 			})
 			for _, v := range errs {
 				if v != nil {
-					return c.JSON(http.StatusInternalServerError, errorResponse(v))
+					return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(v).JSON(c)
 				}
 			}
 		}
@@ -418,11 +412,10 @@ func (server *Server) mentBindApi(c *bytego.Ctx) error {
 		}
 		err := server.store.DeleteMenuApiByMenuAndApi(c.Context(), arg)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, errorResponse(err))
+			return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 		}
 	}
-
-	return c.JSON(http.StatusOK, bytego.Map{"success": true, "message": "操作成功"})
+	return resp.OperateOK().JSON(c)
 }
 
 type mentApisRequest struct {
@@ -432,14 +425,14 @@ type mentApisRequest struct {
 func (server *Server) MenuApis(c *bytego.Ctx) error {
 	var req mentApisRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 
 	apiList, err := server.store.ListMenuApiForApiByMenu(c.Context(), req.Menu)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
-	return c.JSON(http.StatusOK, apiList)
+	return resp.GetOK(apiList).JSON(c)
 }
 
 type menuApiListRequest struct {
@@ -449,18 +442,17 @@ type menuApiListRequest struct {
 func (server *Server) MenuApiList(c *bytego.Ctx) error {
 	var req menuApiListRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 
 	apiIDs, err := server.store.ListMenuApiForApiByMenu(c.Context(), req.Menu)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 
 	apiList, err := server.store.ListApiByIDs(c.Context(), apiIDs)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
-
-	return c.JSON(http.StatusOK, apiList)
+	return resp.GetOK(apiList).JSON(c)
 }

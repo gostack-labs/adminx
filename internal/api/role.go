@@ -6,8 +6,10 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gostack-labs/adminx/internal/code"
 	"github.com/gostack-labs/adminx/internal/middleware/permission"
 	db "github.com/gostack-labs/adminx/internal/repository/db/sqlc"
+	"github.com/gostack-labs/adminx/internal/resp"
 	"github.com/gostack-labs/bytego"
 	"github.com/jackc/pgconn"
 	"github.com/spf13/cast"
@@ -23,7 +25,7 @@ type listRoleRequest struct {
 func (server *Server) listRole(c *bytego.Ctx) error {
 	var req listRoleRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 
 	arg := db.ListRoleParams{
@@ -35,10 +37,9 @@ func (server *Server) listRole(c *bytego.Ctx) error {
 
 	listRole, err := server.store.ListRole(c.Context(), arg)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
-
-	return c.JSON(http.StatusOK, listRole)
+	return resp.GetOK(listRole).JSON(c)
 }
 
 type createRoleRequest struct {
@@ -52,7 +53,7 @@ type createRoleRequest struct {
 func (server *Server) createRole(c *bytego.Ctx) error {
 	var req createRoleRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 
 	arg := db.CreateRoleParams{
@@ -67,12 +68,12 @@ func (server *Server) createRole(c *bytego.Ctx) error {
 		var pgxerr *pgconn.PgError
 		if errors.As(err, &pgxerr) {
 			if pgxerr.Code == "23505" {
-				return c.JSON(http.StatusForbidden, errorResponse(err))
+				return resp.Fail(http.StatusFound, code.RoleExistError).JSON(c)
 			}
 		}
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
-	return c.JSON(http.StatusOK, bytego.Map{"success": true, "message": "添加成功"})
+	return resp.CreateOK().JSON(c)
 }
 
 type updateRoleRequest struct {
@@ -87,7 +88,7 @@ type updateRoleRequest struct {
 func (server *Server) updateRole(c *bytego.Ctx) error {
 	var req updateRoleRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 
 	arg := db.UpdateRoleParams{
@@ -103,12 +104,12 @@ func (server *Server) updateRole(c *bytego.Ctx) error {
 		var pgxerr *pgconn.PgError
 		if errors.As(err, &pgxerr) {
 			if pgxerr.Code == "23505" {
-				return c.JSON(http.StatusForbidden, errorResponse(err))
+				return resp.Fail(http.StatusFound, code.ServerError).JSON(c)
 			}
 		}
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
-	return c.JSON(http.StatusOK, bytego.Map{"success": true, "message": "修改成功"})
+	return resp.UpdateOK().JSON(c)
 }
 
 type deleteRoleRequest struct {
@@ -118,32 +119,32 @@ type deleteRoleRequest struct {
 func (server *Server) deleteRole(c *bytego.Ctx) error {
 	var req deleteRoleRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 
 	// 获取角色绑定的用户
 	roles, err := server.store.GetRoleKeyByIDs(c.Context(), []int64{req.ID})
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 	groups := permission.Enforcer.GetFilteredNamedGroupingPolicy("g", 1, roles...)
 	if len(groups) > 0 {
-		return c.JSON(http.StatusFound, errorResponse(errors.New("角色被其他用户关联，无法删除")))
+		return resp.Fail(http.StatusFound, code.RoleHasUserError).JSON(c)
 	}
 
 	// 获取角色绑定的菜单
 	countRoleMenu, err := server.store.CountRoleMenuByRole(c.Context(), []int64{req.ID})
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 	if countRoleMenu > 0 {
-		return c.JSON(http.StatusFound, errorResponse(errors.New("角色存在与菜单的关联，无法删除")))
+		return resp.Fail(http.StatusFound, code.RoleHasMenuError).JSON(c)
 	}
 	err = server.store.DeleteRole(c.Context(), []int64{req.ID})
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
-	return c.JSON(http.StatusOK, bytego.Map{"success": true, "message": "删除成功"})
+	return resp.DelOK().JSON(c)
 }
 
 type batchDeleteRoleRequest struct {
@@ -153,32 +154,32 @@ type batchDeleteRoleRequest struct {
 func (server *Server) batchDeleteRole(c *bytego.Ctx) error {
 	var req batchDeleteRoleRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 
 	// 获取角色绑定的用户
 	roles, err := server.store.GetRoleKeyByIDs(c.Context(), req.IDs)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 	groups := permission.Enforcer.GetFilteredNamedGroupingPolicy("g", 1, roles...)
 	if len(groups) > 0 {
-		return c.JSON(http.StatusFound, errorResponse(errors.New("角色被其他用户关联，无法删除")))
+		return resp.Fail(http.StatusFound, code.RoleHasUserError).JSON(c)
 	}
 
 	// 获取角色绑定的菜单
 	countRoleMenu, err := server.store.CountRoleMenuByRole(c.Context(), req.IDs)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 	if countRoleMenu > 0 {
-		return c.JSON(http.StatusFound, errorResponse(errors.New("角色存在与菜单的关联，无法删除")))
+		return resp.Fail(http.StatusFound, code.RoleHasMenuError).JSON(c)
 	}
 	err = server.store.DeleteRole(c.Context(), req.IDs)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
-	return c.JSON(http.StatusOK, bytego.Map{"success": true, "message": "删除成功"})
+	return resp.DelOK().JSON(c)
 }
 
 type updateRolePermissionRequest struct {
@@ -193,13 +194,13 @@ func (server *Server) updateRolePermission(c *bytego.Ctx) error {
 		errs           []error
 	)
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 
 	// 查询角色对应的菜单列表
 	rm, err := server.store.ListRoleMenuByRole(c.Context(), req.ID)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 	if len(rm) > 0 {
 		oldRoleMenuMap := make(map[string]int64)
@@ -232,7 +233,7 @@ func (server *Server) updateRolePermission(c *bytego.Ctx) error {
 			})
 			for _, v := range errs {
 				if v != nil {
-					return c.JSON(http.StatusInternalServerError, errorResponse(err))
+					return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(v).JSON(c)
 				}
 			}
 		}
@@ -244,7 +245,7 @@ func (server *Server) updateRolePermission(c *bytego.Ctx) error {
 		if len(deleteRoleMenuList) > 0 {
 			err := server.store.DeleteRoleMenu(c.Context(), deleteRoleMenuList)
 			if err != nil {
-				return c.JSON(http.StatusInternalServerError, errorResponse(err))
+				return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 			}
 		}
 	} else {
@@ -255,11 +256,11 @@ func (server *Server) updateRolePermission(c *bytego.Ctx) error {
 		})
 		for _, v := range errs {
 			if v != nil {
-				return c.JSON(http.StatusInternalServerError, errorResponse(v))
+				return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(v).JSON(c)
 			}
 		}
 	}
-	return c.JSON(http.StatusOK, bytego.Map{"success": true, "message": "创建成功"})
+	return resp.CreateOK().JSON(c)
 }
 
 type getRolePermissionRequest struct {
@@ -269,12 +270,12 @@ type getRolePermissionRequest struct {
 func (server *Server) getRolePermission(c *bytego.Ctx) error {
 	var req getRolePermissionRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 	// 查询所有目录ID
 	parentMenuIDs, err := server.store.ListMenuForParent(c.Context())
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 
 	// 查询当前角色的菜单
@@ -284,26 +285,26 @@ func (server *Server) getRolePermission(c *bytego.Ctx) error {
 	}
 	roleMenus, err := server.store.ListRoleMenuForMenu(c.Context(), arg)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 
 	// 查询当前角色的按钮
 	buttons, err := server.store.ListRoleMenuForButton(c.Context(), req.ID)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 	menuButtons, err := server.store.ListMenuForParentIDByID(c.Context(), buttons)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 	roleButtons := make(map[int64][]int64)
 	for _, v := range menuButtons {
 		roleButtons[v.Parent] = append(roleButtons[v.Parent], v.ID)
 	}
-	return c.JSON(http.StatusOK, bytego.Map{
+	return resp.GetOK(bytego.Map{
 		"menu":   roleMenus,
 		"button": roleButtons,
-	})
+	}).JSON(c)
 }
 
 type roleApiPermissionRequest struct {
@@ -315,16 +316,16 @@ type roleApiPermissionRequest struct {
 func (server *Server) roleApiPermission(c *bytego.Ctx) error {
 	var req roleApiPermissionRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 
 	role, err := server.store.ListRoleByID(c.Context(), req.ID)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 	apis, err := server.store.ListApiByIDs(c.Context(), req.Api)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 	var groups [][]string
 	for _, api := range apis {
@@ -334,15 +335,15 @@ func (server *Server) roleApiPermission(c *bytego.Ctx) error {
 	if *req.Type == 1 {
 		_, err = permission.Enforcer.AddNamedPolicies("p", groups)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, errorResponse(err))
+			return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 		}
 	} else if *req.Type == 0 {
 		_, err := permission.Enforcer.RemoveNamedPolicies("p", groups)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, errorResponse(err))
+			return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 		}
 	}
-	return c.JSON(http.StatusOK, bytego.Map{"success": true, "message": "操作成功"})
+	return resp.OperateOK().JSON(c)
 }
 
 type getRoleApiRequest struct {
@@ -358,18 +359,18 @@ func (server *Server) getRoleApi(c *bytego.Ctx) error {
 		apis []int64
 	)
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 	role, err := server.store.ListRoleByID(c.Context(), req.ID)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 
 	roleApis := permission.Enforcer.GetFilteredNamedPolicy("p", 0, role.Key)
 	if len(roleApis) > 0 {
 		menuApiIds, err := server.store.ListMenuApiForApiByMenu(c.Context(), req.Menu)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, errorResponse(err))
+			return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 		}
 		args := []db.ListApiBatchParams{}
 		for _, p := range roleApis {
@@ -392,5 +393,5 @@ func (server *Server) getRoleApi(c *bytego.Ctx) error {
 	if len(apis) == 0 {
 		apis = []int64{}
 	}
-	return c.JSON(http.StatusOK, apis)
+	return resp.GetOK(apis).JSON(c)
 }

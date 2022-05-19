@@ -28,3 +28,7 @@ WHERE id = ANY($1::bigint[]);
 SELECT * FROM api_groups
 WHERE id = $1;
 
+-- name: CheckGroupExist :one
+SELECT count(*)>0 FROM api_groups
+WHERE id = $1;
+

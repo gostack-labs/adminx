@@ -16,9 +16,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-var Config config
+var config = new(Config)
 
-type config struct {
+type Config struct {
 	App        app
 	Server     server
 	DB         db
@@ -126,7 +126,7 @@ func LoadConfig() {
 			log.Fatal("read config err:", err)
 		}
 
-		err = viper.Unmarshal(&Config)
+		err = viper.Unmarshal(config)
 		if err != nil {
 			log.Fatal("viper.Unmarshal err:", err)
 		}
@@ -156,10 +156,14 @@ func LoadConfig() {
 
 		viper.WatchConfig()
 		viper.OnConfigChange(func(in fsnotify.Event) {
-			err = viper.Unmarshal(&Config)
+			err = viper.Unmarshal(config)
 			if err != nil {
 				log.Fatal("config change Unmarshal err:", err)
 			}
 		})
 	})
+}
+
+func Get() Config {
+	return *config
 }

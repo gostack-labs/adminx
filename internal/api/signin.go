@@ -6,7 +6,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gostack-labs/adminx/configs"
+	"github.com/gostack-labs/adminx/internal/code"
 	db "github.com/gostack-labs/adminx/internal/repository/db/sqlc"
+	"github.com/gostack-labs/adminx/internal/resp"
 	"github.com/gostack-labs/adminx/internal/utils"
 	"github.com/gostack-labs/bytego"
 	"github.com/jackc/pgx/v4"
@@ -29,35 +31,35 @@ type logginUserResponse struct {
 func (server *Server) logginUser(c *bytego.Ctx) error {
 	var req logginUserRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 	user, err := server.store.GetUser(c.Context(), req.Username)
 	if err != nil {
 		if err == pgx.ErrNoRows {
-			return c.JSON(http.StatusNotFound, errorResponse(err))
+			return resp.Fail(http.StatusNotFound, code.UserNotExistError).JSON(c)
 		}
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 
 	err = utils.CheckPassword(req.Password, user.HashedPassword)
 	if err != nil {
-		return c.JSON(http.StatusUnauthorized, errorResponse(err))
+		return resp.Fail(http.StatusForbidden, code.UserPwdError).JSON(c)
 	}
 
 	accessToken, accessPaylod, err := server.tokenMaker.CreateToken(
 		user.Username,
-		configs.Config.Token.AccessTokenDuration,
+		configs.Get().Token.AccessTokenDuration,
 	)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.TokenCreateError).WithError(err).JSON(c)
 	}
 
 	refreshToken, refreshPayload, err := server.tokenMaker.CreateToken(
 		user.Username,
-		configs.Config.Token.RefreshTokenDuration,
+		configs.Get().Token.RefreshTokenDuration,
 	)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.RefreshTokenCreateError).WithError(err).JSON(c)
 	}
 
 	session, err := server.store.CreateSession(c.Context(), db.CreateSessionParams{
@@ -70,7 +72,7 @@ func (server *Server) logginUser(c *bytego.Ctx) error {
 		ExpiresAt:    refreshPayload.ExpiredAt,
 	})
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 
 	rsp := logginUserResponse{
@@ -81,6 +83,5 @@ func (server *Server) logginUser(c *bytego.Ctx) error {
 		RefreshTokenExpiresAt: refreshPayload.ExpiredAt,
 		User:                  newUserResponse(user),
 	}
-
-	return c.JSON(http.StatusOK, rsp)
+	return resp.OperateOK(rsp).JSON(c)
 }

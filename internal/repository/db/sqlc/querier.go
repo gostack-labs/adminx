@@ -11,6 +11,7 @@ import (
 )
 
 type Querier interface {
+	CheckGroupExist(ctx context.Context, id int64) (bool, error)
 	CheckUserEmail(ctx context.Context, email string) (bool, error)
 	CheckUserPhone(ctx context.Context, phone string) (bool, error)
 	// CountApiByMUT 根据 标题 url method 查询数量

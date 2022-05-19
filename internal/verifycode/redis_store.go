@@ -26,13 +26,13 @@ type Store interface {
 
 func (v *redisStore) Set(key string, value string) error {
 
-	expireTime := configs.Config.VerifyCode.ExpireTime
+	expireTime := configs.Get().VerifyCode.ExpireTime
 
-	return v.cache.Set(context.Background(), configs.Config.VerifyCode.KeyPrefix+key, value, expireTime)
+	return v.cache.Set(context.Background(), configs.Get().VerifyCode.KeyPrefix+key, value, expireTime)
 }
 
 func (v *redisStore) Get(key string, clear bool) (string, error) {
-	key = configs.Config.VerifyCode.KeyPrefix + key
+	key = configs.Get().VerifyCode.KeyPrefix + key
 	val, err := v.cache.Get(context.Background(), key)
 	if err != nil {
 		//log.Fatal("get verifycode err:", err)

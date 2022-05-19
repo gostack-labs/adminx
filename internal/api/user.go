@@ -5,9 +5,11 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gostack-labs/adminx/internal/code"
 	"github.com/gostack-labs/adminx/internal/middleware/auth"
 	"github.com/gostack-labs/adminx/internal/middleware/permission"
 	db "github.com/gostack-labs/adminx/internal/repository/db/sqlc"
+	"github.com/gostack-labs/adminx/internal/resp"
 	"github.com/gostack-labs/adminx/internal/utils"
 	"github.com/gostack-labs/adminx/pkg/token"
 	"github.com/gostack-labs/bytego"
@@ -27,7 +29,7 @@ type listUserRequest struct {
 func (server *Server) listUser(c *bytego.Ctx) error {
 	var req listUserRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 	arg := db.ListUserParams{
 		Username:   req.Username,
@@ -40,11 +42,11 @@ func (server *Server) listUser(c *bytego.Ctx) error {
 	users, err := server.store.ListUser(c.Context(), arg)
 	if err != nil {
 		if err == pgx.ErrNoRows {
-			return c.JSON(http.StatusNotFound, errorResponse(err))
+			return resp.Fail(http.StatusNotFound, code.UserNotExistError).JSON(c)
 		}
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
-	return c.JSON(http.StatusOK, users)
+	return resp.GetOK(users).JSON(c)
 }
 
 func (server *Server) userInfo(c *bytego.Ctx) error {
@@ -56,12 +58,12 @@ func (server *Server) userInfo(c *bytego.Ctx) error {
 	}
 	payload, exist := c.Get(auth.AuthorizationPayloadKey)
 	if !exist {
-		return c.JSON(http.StatusUnauthorized, errorResponse(errors.New("un authorized")))
+		return resp.Fail(http.StatusUnauthorized, code.SessionNotExistError).JSON(c)
 	}
 	authPayload := payload.(*token.Payload)
 	user, err := server.store.GetUser(c.Context(), authPayload.Username)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 	userInfo.User = *user
 	groups := permission.Enforcer.GetFilteredNamedGroupingPolicy("g", 0, user.Username)
@@ -78,7 +80,7 @@ func (server *Server) userInfo(c *bytego.Ctx) error {
 	// 查询角色ID
 	roleIDs, err := server.store.ListRoleForIDByKeys(c.Context(), userInfo.Role)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 
 	// 查询菜单权限
@@ -88,11 +90,11 @@ func (server *Server) userInfo(c *bytego.Ctx) error {
 	}
 	menus, err := server.store.ListRoleMenuForMenuByRoles(c.Context(), argMenu)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 	userInfo.Page, err = server.store.ListMenuForAuthByIDs(c.Context(), menus)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 
 	// 查询按钮权限
@@ -102,14 +104,13 @@ func (server *Server) userInfo(c *bytego.Ctx) error {
 	}
 	buttons, err := server.store.ListRoleMenuForMenuByRoles(c.Context(), argButton)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 	userInfo.Button, err = server.store.ListMenuForAuthByIDs(c.Context(), buttons)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
-
-	return c.JSON(http.StatusOK, userInfo)
+	return resp.GetOK(userInfo).JSON(c)
 }
 
 type userInfoByIDRequest struct {
@@ -125,12 +126,12 @@ func (server *Server) userInfoByID(c *bytego.Ctx) error {
 		}
 	)
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 
 	user, err := server.store.GetUser(c.Context(), req.Username)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 	userInfo.User = *user
 	groups := permission.Enforcer.GetFilteredNamedGroupingPolicy("g", 0, req.Username)
@@ -143,8 +144,7 @@ func (server *Server) userInfoByID(c *bytego.Ctx) error {
 	} else {
 		userInfo.Role = []string{}
 	}
-
-	return c.JSON(http.StatusOK, userInfo)
+	return resp.GetOK(userInfo).JSON(c)
 }
 
 type createUserRequest struct {
@@ -159,31 +159,31 @@ type createUserRequest struct {
 func (server *Server) createUser(c *bytego.Ctx) error {
 	var req createUserRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 	hashedPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 
 	if strings.TrimSpace(req.Email) != "" {
 		b, err := server.store.CheckUserEmail(c.Context(), req.Email)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, errorResponse(err))
+			return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 		}
 		if b {
-			return c.JSON(http.StatusForbidden, bytego.Map{"error": "该邮箱已存在！"})
+			return resp.Fail(http.StatusFound, code.UserEmailExistError).JSON(c)
 		}
 	}
 
 	if strings.TrimSpace(req.Phone) != "" {
 		b, err := server.store.CheckUserPhone(c.Context(), req.Phone)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, errorResponse(err))
+			return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 		}
 
 		if b {
-			return c.JSON(http.StatusForbidden, bytego.Map{"error": "该手机号已存在！"})
+			return resp.Fail(http.StatusFound, code.UserPhoneExistError).JSON(c)
 		}
 	}
 	arg := db.CreateUserParams{
@@ -215,12 +215,12 @@ func (server *Server) createUser(c *bytego.Ctx) error {
 		var pgxerr *pgconn.PgError
 		if errors.As(err, &pgxerr) {
 			if pgxerr.Code == "23505" {
-				return c.JSON(http.StatusForbidden, errorResponse(err))
+				return resp.Fail(http.StatusFound, code.UserUsernameExistError).JSON(c)
 			}
 		}
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
-	return c.JSON(http.StatusOK, user)
+	return resp.CreateOK(user).JSON(c)
 }
 
 type updateUserRequest struct {
@@ -234,31 +234,31 @@ type updateUserRequest struct {
 func (server *Server) updateUser(c *bytego.Ctx) error {
 	var req updateUserRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 	u, err := server.store.GetUser(c.Context(), req.Username)
 	if err != nil {
 		if err == pgx.ErrNoRows {
-			return c.JSON(http.StatusNotFound, errorResponse(err))
+			return resp.Fail(http.StatusNotFound, code.UserNotExistError).JSON(c)
 		}
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 	if u.Email != req.Email {
 		b, err := server.store.CheckUserEmail(c.Context(), req.Email)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, errorResponse(err))
+			return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 		}
 		if b {
-			return c.JSON(http.StatusFound, errorResponse(errors.New("该邮箱已存在！")))
+			return resp.Fail(http.StatusFound, code.UserEmailExistError).JSON(c)
 		}
 	}
 	if u.Phone != req.Phone {
 		b, err := server.store.CheckUserPhone(c.Context(), req.Phone)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, errorResponse(err))
+			return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 		}
 		if b {
-			return c.JSON(http.StatusFound, errorResponse(errors.New("该手机号码已存在！")))
+			return resp.Fail(http.StatusFound, code.UserPhoneExistError).JSON(c)
 		}
 	}
 	err = server.store.ExecTx(c.Context(), func(q *db.Queries) error {
@@ -307,9 +307,9 @@ func (server *Server) updateUser(c *bytego.Ctx) error {
 		return err
 	})
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
-	return c.JSON(http.StatusOK, bytego.Map{"success": true, "message": "修改成功"})
+	return resp.UpdateOK().JSON(c)
 }
 
 type deleteUserRequest struct {
@@ -319,19 +319,19 @@ type deleteUserRequest struct {
 func (server *Server) deleteUser(c *bytego.Ctx) error {
 	var req deleteUserRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 
 	groups := permission.Enforcer.GetFilteredNamedGroupingPolicy("g", 0, req.Username)
 	if len(groups) > 0 {
-		return c.JSON(http.StatusFound, errorResponse(errors.New("当前用户关联了其他角色，无法直接删除")))
+		return resp.Fail(http.StatusFound, code.UserHasRoleError).JSON(c)
 	}
 
 	err := server.store.DeleteUser(c.Context(), []string{req.Username})
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
-	return c.JSON(http.StatusOK, bytego.Map{"success": true, "message": "删除成功"})
+	return resp.DelOK().JSON(c)
 }
 
 type batchDeleteUserRequest struct {
@@ -341,17 +341,17 @@ type batchDeleteUserRequest struct {
 func (server *Server) batchDeleteUser(c *bytego.Ctx) error {
 	var req batchDeleteUserRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse(err))
+		return resp.BadRequestJSON(err, c)
 	}
 
 	groups := permission.Enforcer.GetFilteredNamedGroupingPolicy("g", 0, req.Usernames...)
 	if len(groups) > 0 {
-		return c.JSON(http.StatusFound, errorResponse(errors.New("当前用户关联了其他角色，无法直接删除")))
+		return resp.Fail(http.StatusFound, code.UserHasRoleError).JSON(c)
 	}
 
 	err := server.store.DeleteUser(c.Context(), req.Usernames)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
-	return c.JSON(http.StatusOK, bytego.Map{"success": true, "message": "删除成功"})
+	return resp.DelOK().JSON(c)
 }
