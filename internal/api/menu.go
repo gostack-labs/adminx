@@ -105,10 +105,15 @@ func (m *MenuTree) GetMenuTree() []*MenuValue {
 	return topMenuList
 }
 
+type menuTreeResponse struct {
+	Menu   []*MenuValue
+	Button map[int64][]*db.Menu
+}
+
 //@title 获取菜单树接口
 //@api get /sys/menu/tree
 //@group menu
-//@response 200 resp.resultOK{businesscode=10000,message="获取成功",data=bytego.Map{"menu":[]MenuValue,"button": map[int64][]db.Menu}}
+//@response 200 resp.resultOK{businesscode=10000,message="获取成功",data=menuTreeResponse}
 func (server *Server) menuTree(c *bytego.Ctx) error {
 	var (
 		err        error
@@ -133,9 +138,9 @@ func (server *Server) menuTree(c *bytego.Ctx) error {
 	for _, b := range buttonList {
 		buttonMap[b.Parent] = append(buttonMap[b.Parent], b)
 	}
-	return resp.GetOK(bytego.Map{
-		"menu":   result,
-		"button": buttonMap,
+	return resp.GetOK(menuTreeResponse{
+		Menu:   result,
+		Button: buttonMap,
 	}).JSON(c)
 }
 

@@ -26,8 +26,48 @@ __Response__:
 //StatusCode: 200 
 {  //object(resp.resultOK)
   "code": 10000,  //int
-  "data": {  //object(map[string]any)
-    "string": null  //any
+  "data": {  //object(api.menuTreeResponse)
+    "Button": {  //object(map[int64]&{%!s(token.Pos=2875) <nil> %!s(*ast.StarExpr=&{2877 0x1400025e258})})
+      "0": [  //array[db.Menu]
+        {  //object(db.Menu)
+          "auth": [  //array[string]
+            "string"
+          ],
+          "component": "string",  //string
+          "created_at": "2022-05-16T16:47:48.741899+08:00",  //object(time.Time)
+          "hyperlink": "string",  //string
+          "icon": "string",  //string
+          "id": 0,  //int64
+          "is_affix": false,  //bool
+          "is_hide": false,  //bool
+          "is_iframe": false,  //bool
+          "is_keep_alive": false,  //bool
+          "name": "string",  //string
+          "parent": 0,  //int64
+          "path": "string",  //string
+          "redirect": "string",  //string
+          "sort": 0,  //int32
+          "title": "string",  //string
+          "type": 0  //int32
+        }
+      ]
+    },
+    "Menu": [  //array[api.MenuValue]
+      {  //object(api.MenuValue)
+        "children": [  //array[api.MenuValue]
+
+        ],
+        "component": "string",  //string
+        "id": 0,  //int64
+        "meta": null,  //object
+        "name": "string",  //string
+        "parent": 0,  //int64
+        "path": "string",  //string
+        "sort": 0,  //int32
+        "title": "string",  //string
+        "type": 0  //int32
+      }
+    ]
   },
   "msg": "获取成功"  //string
 }

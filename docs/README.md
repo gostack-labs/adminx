@@ -32,7 +32,11 @@ adminx服务相关接口
 
     3.2. [用户登录接口](./apis-basic.md#2-用户登录接口)
 
-    3.3. [刷新token接口](./apis-basic.md#3-刷新token接口)
+    3.3. [用户注册接口](./apis-basic.md#3-用户注册接口)
+
+    3.4. [发送邮箱验证码接口](./apis-basic.md#4-发送邮箱验证码接口)
+
+    3.5. [刷新token接口](./apis-basic.md#5-刷新token接口)
 
 4. [菜单管理相关接口](./apis-menu.md)
 
@@ -74,44 +78,56 @@ adminx服务相关接口
 
     5.9. [获取角色授权的接口权限接口](./apis-role.md#9-获取角色授权的接口权限接口)
 
-6. [系统管理接口](./apis-system.md)
+6. [ungrouped](./apis-ungrouped.md)
 
-7. [ungrouped](./apis-ungrouped.md)
+    6.1. [](./apis-ungrouped.md#1-)
 
-    7.1. [](./apis-ungrouped.md#1-)
+    6.2. [](./apis-ungrouped.md#2-)
 
-    7.2. [](./apis-ungrouped.md#2-)
+    6.3. [](./apis-ungrouped.md#3-)
 
-    7.3. [](./apis-ungrouped.md#3-)
+    6.4. [](./apis-ungrouped.md#4-)
 
-    7.4. [](./apis-ungrouped.md#4-)
+    6.5. [](./apis-ungrouped.md#5-)
 
-    7.5. [](./apis-ungrouped.md#5-)
+    6.6. [](./apis-ungrouped.md#6-)
 
-    7.6. [](./apis-ungrouped.md#6-)
+    6.7. [](./apis-ungrouped.md#7-)
 
-    7.7. [](./apis-ungrouped.md#7-)
+    6.8. [](./apis-ungrouped.md#8-)
 
-    7.8. [](./apis-ungrouped.md#8-)
+    6.9. [](./apis-ungrouped.md#9-)
 
-    7.9. [](./apis-ungrouped.md#9-)
+    6.10. [](./apis-ungrouped.md#10-)
 
-    7.10. [](./apis-ungrouped.md#10-)
+    6.11. [](./apis-ungrouped.md#11-)
 
-    7.11. [](./apis-ungrouped.md#11-)
+    6.12. [](./apis-ungrouped.md#12-)
 
-    7.12. [](./apis-ungrouped.md#12-)
+    6.13. [](./apis-ungrouped.md#13-)
 
-    7.13. [](./apis-ungrouped.md#13-)
+    6.14. [](./apis-ungrouped.md#14-)
 
-    7.14. [](./apis-ungrouped.md#14-)
+    6.15. [](./apis-ungrouped.md#15-)
 
-    7.15. [](./apis-ungrouped.md#15-)
+    6.16. [](./apis-ungrouped.md#16-)
 
-    7.16. [](./apis-ungrouped.md#16-)
+    6.17. [](./apis-ungrouped.md#17-)
 
-    7.17. [](./apis-ungrouped.md#17-)
+    6.18. [](./apis-ungrouped.md#18-)
 
-    7.18. [](./apis-ungrouped.md#18-)
+7. [](./apis-user.md)
 
-8. [用户管理相关接口](./apis-user.md)
+    7.1. [分页获取用户列表接口](./apis-user.md#1-分页获取用户列表接口)
+
+    7.2. [获取用户详情接口](./apis-user.md#2-获取用户详情接口)
+
+    7.3. [通过用户获取用户详情接口](./apis-user.md#3-通过用户获取用户详情接口)
+
+    7.4. [新增用户接口](./apis-user.md#4-新增用户接口)
+
+    7.5. [更新用户信息接口](./apis-user.md#5-更新用户信息接口)
+
+    7.6. [删除用户接口](./apis-user.md#6-删除用户接口)
+
+    7.7. [批量删除用户接口](./apis-user.md#7-批量删除用户接口)

@@ -93,84 +93,78 @@ func (server *Server) setupRouter() {
 
 		router.GET("/code", server.code)
 	}
+	sys := router.Group("/sys", auth.AuthMiddleware(server.tokenMaker))
 
-	//@group system
-	//@title 系统管理接口
-	//@desc 用户、角色、菜单、接口管理相关接口
+	//@group menu
+	//@title 菜单管理相关接口
+	//@desc 菜单管理相关接口
 	{
-		sys := router.Group("/sys", auth.AuthMiddleware(server.tokenMaker))
-
-		//@group menu
-		//@title 菜单管理相关接口
-		//@desc 菜单管理相关接口
-		{
-			menu := sys.Group("/menu")
-			menu.GET("/tree", server.menuTree)
-			menu.POST("", server.createMenu)
-			menu.PUT("/:id", server.updateMenu)
-			menu.DELETE("/single/:id", server.deleteMenu)
-			menu.DELETE("/batch", server.batchDeleteMenu)
-			menu.GET("/button/:id", server.menuButton)
-			menu.POST("/api/:id", server.mentBindApi)
-			menu.GET("/api/:menu", server.MenuApis)
-			menu.GET("/api-list/:menu", server.MenuApiList)
-		}
-
-		//@group api-group
-		//@title 接口分组管理相关接口
-		//@desc 接口分组管理相关接口
-		{
-			apiGroup := sys.Group("/api-group")
-			apiGroup.GET("", server.listApiGroup)
-			apiGroup.POST("", server.createApiGroup)
-			apiGroup.PUT("/:id", server.updateApiGroup)
-			apiGroup.DELETE("/single/:id", server.deleteApiGroup)
-			apiGroup.DELETE("/batch", server.batchDeleteApiGroup)
-		}
-
-		//@group api
-		//@title 接口管理相关接口
-		//@desc 接口管理相关接口
-		{
-			api := sys.Group("/api")
-			api.GET("", server.listApi)
-			api.POST("", server.createApi)
-			api.PUT("/:id", server.updateApi)
-			api.DELETE("/single/:id", server.deleteApi)
-			api.DELETE("/batch", server.batchDeleteApi)
-		}
-
-		//@group role
-		//@title 角色管理相关接口
-		//@desc 角色管理相关接口
-		{
-			role := sys.Group("/role")
-			role.GET("", server.listRole)
-			role.POST("", server.createRole)
-			role.PUT("/:id", server.updateRole)
-			role.DELETE("/single/:id", server.deleteRole)
-			role.DELETE("/batch", server.batchDeleteRole)
-			role.POST("/permission/:id", server.updateRolePermission)
-			role.POST("/api/:id", server.roleApiPermission)
-			role.GET("/api/:id", server.getRoleApi)
-			role.GET("permission/:id", server.getRolePermission)
-		}
-
-		//@group user
-		//@title 用户管理相关接口
-		//@desc 用户管理相关接口
-		{
-			user := sys.Group("/user")
-			user.GET("", server.listUser)
-			user.GET("/info", server.userInfo)
-			user.GET("/info/:username", server.userInfoByID)
-			user.POST("", server.createUser)
-			user.PUT("/:username", server.updateUser)
-			user.DELETE("/single/:username", server.deleteUser)
-			user.DELETE("/batch", server.batchDeleteUser)
-			server.router = router
-		}
+		menu := sys.Group("/menu")
+		menu.GET("/tree", server.menuTree)
+		menu.POST("", server.createMenu)
+		menu.PUT("/:id", server.updateMenu)
+		menu.DELETE("/single/:id", server.deleteMenu)
+		menu.DELETE("/batch", server.batchDeleteMenu)
+		menu.GET("/button/:id", server.menuButton)
+		menu.POST("/api/:id", server.mentBindApi)
+		menu.GET("/api/:menu", server.MenuApis)
+		menu.GET("/api-list/:menu", server.MenuApiList)
 	}
+
+	//@group api-group
+	//@title 接口分组管理相关接口
+	//@desc 接口分组管理相关接口
+	{
+		apiGroup := sys.Group("/api-group")
+		apiGroup.GET("", server.listApiGroup)
+		apiGroup.POST("", server.createApiGroup)
+		apiGroup.PUT("/:id", server.updateApiGroup)
+		apiGroup.DELETE("/single/:id", server.deleteApiGroup)
+		apiGroup.DELETE("/batch", server.batchDeleteApiGroup)
+	}
+
+	//@group api
+	//@title 接口管理相关接口
+	//@desc 接口管理相关接口
+	{
+		api := sys.Group("/api")
+		api.GET("", server.listApi)
+		api.POST("", server.createApi)
+		api.PUT("/:id", server.updateApi)
+		api.DELETE("/single/:id", server.deleteApi)
+		api.DELETE("/batch", server.batchDeleteApi)
+	}
+
+	//@group role
+	//@title 角色管理相关接口
+	//@desc 角色管理相关接口
+	{
+		role := sys.Group("/role")
+		role.GET("", server.listRole)
+		role.POST("", server.createRole)
+		role.PUT("/:id", server.updateRole)
+		role.DELETE("/single/:id", server.deleteRole)
+		role.DELETE("/batch", server.batchDeleteRole)
+		role.POST("/permission/:id", server.updateRolePermission)
+		role.POST("/api/:id", server.roleApiPermission)
+		role.GET("/api/:id", server.getRoleApi)
+		role.GET("permission/:id", server.getRolePermission)
+	}
+
+	//@group user
+	//@title 用户管理相关接口
+	//@desc 用户管理相关接口
+	{
+		user := sys.Group("/user")
+		user.GET("", server.listUser)
+		user.GET("/info", server.userInfo)
+		user.GET("/info/:username", server.userInfoByID)
+		user.POST("", server.createUser)
+		user.PUT("/:username", server.updateUser)
+		user.DELETE("/single/:username", server.deleteUser)
+		user.DELETE("/batch", server.batchDeleteUser)
+	}
+	server.router = router
 }
 
 func (server *Server) Start(address string) error {

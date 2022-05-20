@@ -1,3 +1,4 @@
+//@group user
 package api
 
 import (
@@ -18,14 +19,18 @@ import (
 )
 
 type listUserRequest struct {
-	Username string `json:"username"`
-	FullName string `json:"full_name"`
-	Email    string `json:"email"`
-	Phone    string `json:"phone"`
-	PageID   int32  `json:"page_id" validate:"required,min=1"`
-	PageSize int32  `json:"page_size" validate:"required,max=50"`
-}
+	Username string `json:"username"`                             // 用户名
+	FullName string `json:"full_name"`                            // 全名
+	Email    string `json:"email"`                                // 邮箱
+	Phone    string `json:"phone"`                                // 手机号
+	PageID   int32  `json:"page_id" validate:"required,min=1"`    // 页码
+	PageSize int32  `json:"page_size" validate:"required,max=50"` // 页尺寸
+} // 分页获取用户列表请求参数
 
+//@title 分页获取用户列表接口
+//@api get /sys/user
+//@request listUserRequest
+//@response 200 resp.resultOK{businesscode=10000,message="获取成功",data=[]db.User} "用户集合"
 func (server *Server) listUser(c *bytego.Ctx) error {
 	var req listUserRequest
 	if err := c.Bind(&req); err != nil {
@@ -49,13 +54,18 @@ func (server *Server) listUser(c *bytego.Ctx) error {
 	return resp.GetOK(users).JSON(c)
 }
 
+type userInfoResponse struct {
+	db.User               // 用户信息
+	Role    []string      `json:"role"`   // 角色列表
+	Page    []interface{} `json:"page"`   // 菜单列表
+	Button  []interface{} `json:"button"` // 按钮列表
+}
+
+//@title 获取用户详情接口
+//@api get /sys/user/info
+//@response 200 resp.resultOK{businesscode=10000,message="获取成功",data=userInfoResponse} "用户详情"
 func (server *Server) userInfo(c *bytego.Ctx) error {
-	var userInfo struct {
-		db.User
-		Role   []string      `json:"role"`
-		Page   []interface{} `json:"page"`
-		Button []interface{} `json:"button"`
-	}
+	var userInfo userInfoResponse
 	payload, exist := c.Get(auth.AuthorizationPayloadKey)
 	if !exist {
 		return resp.Fail(http.StatusUnauthorized, code.SessionNotExistError).JSON(c)
@@ -114,16 +124,22 @@ func (server *Server) userInfo(c *bytego.Ctx) error {
 }
 
 type userInfoByIDRequest struct {
-	Username string `param:"username" validate:"required"`
-}
+	Username string `param:"username" validate:"required"` // 用户（用户名/手机号/邮箱）
+} // 通过用户获取用户详情请求参数
 
+type userInfoByIDResponse struct {
+	db.User          //用户信息
+	Role    []string // 角色集合
+} // 通过用户获取用户详情返回数据
+
+//@title 通过用户获取用户详情接口
+//@api get /sys/user/info/:username
+//@request userInfoByIDRequest
+//@response 200 resp.resultOK{businesscode=10000,message="获取成功",data=userInfoByIDResponse} "用户详情"
 func (server *Server) userInfoByID(c *bytego.Ctx) error {
 	var (
 		req      userInfoByIDRequest
-		userInfo struct {
-			db.User
-			Role []string
-		}
+		userInfo userInfoByIDResponse
 	)
 	if err := c.Bind(&req); err != nil {
 		return resp.BadRequestJSON(err, c)
@@ -148,14 +164,18 @@ func (server *Server) userInfoByID(c *bytego.Ctx) error {
 }
 
 type createUserRequest struct {
-	Username string   `json:"username" validate:"required,alphanum"`
-	Password string   `json:"password" validate:"required,min=6"`
-	FullName string   `json:"full_name" validate:"required"`
-	Email    string   `json:"email" validate:"required_without=Phone,omitempty,email"`
-	Phone    string   `json:"phone" validate:"required_without=Email,omitempty,phone"`
-	Role     []string `json:"role"`
-}
+	Username string   `json:"username" validate:"required,alphanum"`                   // 用户名
+	Password string   `json:"password" validate:"required,min=6"`                      // 密码
+	FullName string   `json:"full_name" validate:"required"`                           // 全名
+	Email    string   `json:"email" validate:"required_without=Phone,omitempty,email"` // 邮箱
+	Phone    string   `json:"phone" validate:"required_without=Email,omitempty,phone"` // 手机号
+	Role     []string `json:"role"`                                                    // 角色
+} // 新增用户请求参数
 
+//@title 新增用户接口
+//@api post /sys/user
+//@request createUserRequest
+//@response 200 resp.resultOK{businesscode=10000,message="创建成功",data=db.User} "用户详情"
 func (server *Server) createUser(c *bytego.Ctx) error {
 	var req createUserRequest
 	if err := c.Bind(&req); err != nil {
@@ -224,13 +244,17 @@ func (server *Server) createUser(c *bytego.Ctx) error {
 }
 
 type updateUserRequest struct {
-	Username string   `param:"username" validate:"required"`
-	FullName string   `json:"full_name" validate:"required"`
-	Email    string   `json:"email" validate:"required_without=Phone,omitempty,email"`
-	Phone    string   `json:"phone" validate:"required_without=Email,omitempty,phone"`
-	Role     []string `json:"role"`
-}
+	Username string   `param:"username" validate:"required"`                           // 用户名
+	FullName string   `json:"full_name" validate:"required"`                           // 全名
+	Email    string   `json:"email" validate:"required_without=Phone,omitempty,email"` // 手机号
+	Phone    string   `json:"phone" validate:"required_without=Email,omitempty,phone"` // 密码
+	Role     []string `json:"role"`                                                    // 角色集合
+} // 更新用户信息请求参数
 
+//@title 更新用户信息接口
+//@api put /sys/user/:username
+//@request updateUserRequest
+//@response 200 resp.resultOK{businesscode=10000,message="修改成功"}
 func (server *Server) updateUser(c *bytego.Ctx) error {
 	var req updateUserRequest
 	if err := c.Bind(&req); err != nil {
@@ -313,9 +337,13 @@ func (server *Server) updateUser(c *bytego.Ctx) error {
 }
 
 type deleteUserRequest struct {
-	Username string `param:"username" validate:"required"`
-}
+	Username string `param:"username" validate:"required"` // 用户名
+} // 删除用户请求参数
 
+//@title 删除用户接口
+//@api delete /sys/user/single/:username
+//request deleteUserRequest
+//@response 200 resp.resultOK{businesscode=10000,message="删除成功"}
 func (server *Server) deleteUser(c *bytego.Ctx) error {
 	var req deleteUserRequest
 	if err := c.Bind(&req); err != nil {
@@ -335,9 +363,13 @@ func (server *Server) deleteUser(c *bytego.Ctx) error {
 }
 
 type batchDeleteUserRequest struct {
-	Usernames []string `json:"usernames" validate:"required"`
-}
+	Usernames []string `json:"usernames" validate:"required"` // 用户名集合
+} // 批量删除用户请求参数
 
+//@title 批量删除用户接口
+//@api delete /sys/user/batch
+//request batchdeleteUserRequest
+//@response 200 resp.resultOK{businesscode=10000,message="删除成功"}
 func (server *Server) batchDeleteUser(c *bytego.Ctx) error {
 	var req batchDeleteUserRequest
 	if err := c.Bind(&req); err != nil {

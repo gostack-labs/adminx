@@ -4,7 +4,9 @@
 
 1. [获取错误列表接口](#1-获取错误列表接口)
 2. [用户登录接口](#2-用户登录接口)
-3. [刷新token接口](#3-刷新token接口)
+3. [用户注册接口](#3-用户注册接口)
+4. [发送邮箱验证码接口](#4-发送邮箱验证码接口)
+5. [刷新token接口](#5-刷新token接口)
 
 ## apis
 
@@ -68,12 +70,12 @@ __Response__:
     "refresh_token_expires_at": "2022-05-16T16:47:48.741899+08:00",  //object(time.Time), 刷新token 过期时间
     "session_id": null,  //object, sessionID
     "user": {  //object(api.userResponse), 用户信息
-      "created_at": "2022-05-16T16:47:48.741899+08:00",  //object(time.Time)
-      "email": "string",  //string
-      "full_name": "string",  //string
-      "password_change_at": "2022-05-16T16:47:48.741899+08:00",  //object(time.Time)
-      "phone": "string",  //string
-      "username": "string"  //string
+      "created_at": "2022-05-16T16:47:48.741899+08:00",  //object(time.Time), 创建时间
+      "email": "string",  //string, 邮箱
+      "full_name": "string",  //string, 全名
+      "password_change_at": "2022-05-16T16:47:48.741899+08:00",  //object(time.Time), 密码修改时间
+      "phone": "string",  //string, 手机号
+      "username": "string"  //string, 用户名
     }
   },
   "msg": "string"  //string
@@ -82,7 +84,72 @@ __Response__:
 
 ---
 
-### 3. 刷新token接口
+### 3. 用户注册接口
+
+```text
+POST /signup
+```
+
+_body_:
+
+```javascript
+{  //object(api.signupRequest), 用户注册请求参数
+  "email": "string",  //string, validate:"required_without=Phone,omitempty,email", 邮箱
+  "full_name": "string",  //string, validate:"required", 全名
+  "password": "string",  //string, validate:"required,min=6", 密码
+  "phone": "string",  //string, validate:"required_without=Email,omitempty,phone", 手机号
+  "username": "string",  //string, validate:"required,alphanum", 用户名
+  "verify_code": "string"  //string, validate:"required,alphanum", 验证码
+}
+```
+
+__Response__:
+
+```javascript
+//StatusCode: 200 
+{  //object(resp.resultOK)
+  "code": 10000,  //int
+  "data": {  //object(api.userResponse), 用户注册返回数据
+    "created_at": "2022-05-16T16:47:48.741899+08:00",  //object(time.Time), 创建时间
+    "email": "string",  //string, 邮箱
+    "full_name": "string",  //string, 全名
+    "password_change_at": "2022-05-16T16:47:48.741899+08:00",  //object(time.Time), 密码修改时间
+    "phone": "string",  //string, 手机号
+    "username": "string"  //string, 用户名
+  },
+  "msg": "操作成功"  //string
+}
+```
+
+---
+
+### 4. 发送邮箱验证码接口
+
+```text
+GET /signup/sendUsingEmail
+```
+
+_body_:
+
+```javascript
+{  //object(api.verifyCodeEmailRequest), 发送邮箱验证码请求参数
+  "email": "string"  //string, validate:"required,email", 邮箱
+}
+```
+
+__Response__:
+
+```javascript
+//StatusCode: 200 
+{  //object(resp.resultOK)
+  "code": 10000,  //int
+  "msg": "操作成功"  //string
+}
+```
+
+---
+
+### 5. 刷新token接口
 
 ```text
 POST /tokens/renew_access
