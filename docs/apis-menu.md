@@ -27,7 +27,7 @@ __Response__:
 {  //object(resp.resultOK)
   "code": 10000,  //int
   "data": {  //object(api.menuTreeResponse)
-    "Button": {  //object(map[int64]&{%!s(token.Pos=2875) <nil> %!s(*ast.StarExpr=&{2877 0x14000282b58})})
+    "Button": {  //object(map[int64]&{%!s(token.Pos=3228) <nil> %!s(*ast.StarExpr=&{3230 0x14000234e70})})
       "0": [  //array[db.Menu]
         {  //object(db.Menu)
           "auth": [  //array[string]
@@ -54,18 +54,18 @@ __Response__:
     },
     "Menu": [  //array[api.MenuValue]
       {  //object(api.MenuValue)
-        "children": [  //array[api.MenuValue]
+        "children": [  //array[api.MenuValue], 子集
 
         ],
-        "component": "string",  //string
-        "id": 0,  //int64
+        "component": "string",  //string, 组建路径
+        "id": 0,  //int64, 主键ID
         "meta": null,  //object
-        "name": "string",  //string
-        "parent": 0,  //int64
-        "path": "string",  //string
-        "sort": 0,  //int32
-        "title": "string",  //string
-        "type": 0  //int32
+        "name": "string",  //string, 路由名称
+        "parent": 0,  //int64, 父级
+        "path": "string",  //string, 路径
+        "sort": 0,  //int32, 排序
+        "title": "string",  //string, 标题
+        "type": 0  //int32, 类型：1 目录，2 菜单，3 按钮
       }
     ]
   },

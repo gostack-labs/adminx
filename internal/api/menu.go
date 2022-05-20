@@ -11,25 +11,25 @@ import (
 )
 
 type MenuValue struct {
-	ID        int64   `json:"id"`
-	Title     string  `json:"title"`
-	Path      *string `json:"path"`
-	Name      string  `json:"name"`
-	Component *string `json:"component"`
-	Parent    int64   `json:"parent"`
-	Type      int32   `json:"type"`
-	Sort      int32   `json:"sort"`
+	ID        int64   `json:"id"`        // 主键ID
+	Title     string  `json:"title"`     // 标题
+	Path      *string `json:"path"`      // 路径
+	Name      string  `json:"name"`      // 路由名称
+	Component *string `json:"component"` // 组建路径
+	Parent    int64   `json:"parent"`    // 父级
+	Type      int32   `json:"type"`      // 类型：1 目录，2 菜单，3 按钮
+	Sort      int32   `json:"sort"`      // 排序
 	Meta      struct {
-		Title       string   `json:"title"`
-		Hyperlink   *string  `json:"hyperlink"`
-		IsHide      bool     `json:"is_hide"`
-		IsKeepAlive bool     `json:"is_keep_alive"`
-		IsAffix     bool     `json:"is_affix"`
-		IsIframe    bool     `json:"is_iframe"`
-		Auth        []string `json:"auth"`
-		Icon        *string  `json:"icon"`
+		Title       string   `json:"title"`         // 标题
+		Hyperlink   *string  `json:"hyperlink"`     // 超链接
+		IsHide      bool     `json:"is_hide"`       // 是否隐藏
+		IsKeepAlive bool     `json:"is_keep_alive"` // 是否缓存组件
+		IsAffix     bool     `json:"is_affix"`      // 是否固定在标签栏
+		IsIframe    bool     `json:"is_iframe"`     // 是否内嵌窗口
+		Auth        []string `json:"auth"`          // 权限粒子
+		Icon        *string  `json:"icon"`          // 图标
 	} `json:"meta"`
-	Children []*MenuValue `json:"children"`
+	Children []*MenuValue `json:"children"` // 子集
 }
 
 type MenuTree struct {
