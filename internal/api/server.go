@@ -82,9 +82,7 @@ func (server *Server) setupRouter() {
 	//@title 基础接口
 	//@desc 登录、注册、获取验证码、刷新token相关接口
 	{
-		router.GET("/", func(c *bytego.Ctx) error {
-			return c.JSON(http.StatusOK, bytego.Map{"hello": "world"})
-		})
+		router.GET("/", server.dashboard)
 		router.POST("/signup", server.signup)
 		router.POST("/signup/sendUsingEmail", server.sendUsingEmail)
 
@@ -96,6 +94,7 @@ func (server *Server) setupRouter() {
 	sys := router.Group("/sys", auth.AuthMiddleware(server.tokenMaker))
 
 	//@group menu
+	//@header authorization
 	//@title 菜单管理相关接口
 	//@desc 菜单管理相关接口
 	{

@@ -61,6 +61,7 @@ type Querier interface {
 	ListRoleMenuForMenu(ctx context.Context, arg ListRoleMenuForMenuParams) ([]int64, error)
 	ListRoleMenuForMenuByRoles(ctx context.Context, arg ListRoleMenuForMenuByRolesParams) ([]int64, error)
 	ListUser(ctx context.Context, arg ListUserParams) ([]*User, error)
+	SelectVersion(ctx context.Context) (string, error)
 	UpdateApi(ctx context.Context, arg UpdateApiParams) error
 	// UpdateApiGroup 修改 api 组
 	UpdateApiGroup(ctx context.Context, arg UpdateApiGroupParams) error

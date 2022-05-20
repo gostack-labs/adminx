@@ -27,7 +27,7 @@ __Response__:
 {  //object(resp.resultOK)
   "code": 10000,  //int
   "data": {  //object(api.menuTreeResponse)
-    "Button": {  //object(map[int64]&{%!s(token.Pos=2875) <nil> %!s(*ast.StarExpr=&{2877 0x1400025e258})})
+    "Button": {  //object(map[int64]&{%!s(token.Pos=2875) <nil> %!s(*ast.StarExpr=&{2877 0x14000282b58})})
       "0": [  //array[db.Menu]
         {  //object(db.Menu)
           "auth": [  //array[string]

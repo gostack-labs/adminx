@@ -3,10 +3,11 @@
 登录、注册、获取验证码、刷新token相关接口
 
 1. [获取错误列表接口](#1-获取错误列表接口)
-2. [用户登录接口](#2-用户登录接口)
-3. [用户注册接口](#3-用户注册接口)
-4. [发送邮箱验证码接口](#4-发送邮箱验证码接口)
-5. [刷新token接口](#5-刷新token接口)
+2. [仪表盘接口](#2-仪表盘接口)
+3. [用户登录接口](#3-用户登录接口)
+4. [用户注册接口](#4-用户注册接口)
+5. [发送邮箱验证码接口](#5-发送邮箱验证码接口)
+6. [刷新token接口](#6-刷新token接口)
 
 ## apis
 
@@ -42,7 +43,49 @@ __Response__:
 
 ---
 
-### 2. 用户登录接口
+### 2. 仪表盘接口
+
+```text
+GET /dashboard
+```
+
+__Response__:
+
+```javascript
+//StatusCode: 200 
+{  //object(resp.resultOK)
+  "code": 10000,  //int
+  "data": {  //object(api.viewResponse)
+    "CpuCores": 0,  //int32, cpu 核心
+    "CpuName": "string",  //string, cpu 名字
+    "CpuUsedPercent": 1.23,  //float64, cpu使用百分比
+    "DiskTotal": "string",  //string, 存储总量
+    "DiskUsed": "string",  //string, 存储使用量
+    "DiskUsedPercent": 1.23,  //float64, 存储使用百分比
+    "Env": "string",  //string, 环境变量
+    "GoArch": "string",  //string, GOARCH
+    "GoOS": "string",  //string, GOOS
+    "GoPath": "string",  //string, GOPATH
+    "Goroutine": 0,  //int, go 协程
+    "GoVersion": "string",  //string, go 版本
+    "Host": "string",  //string, 主机
+    "HostName": "string",  //string, 主机名
+    "HostOS": "string",  //string, 主机系统
+    "MemTotal": "string",  //string, 内存总量
+    "MemUsed": "string",  //string, 内存使用量
+    "MemUsedPercent": 1.23,  //float64, 内存使用百分比
+    "PostgresqlVersion": "string",  //string, pgsql 版本
+    "ProjectPath": "string",  //string, 项目路径
+    "ProjectVersion": "string",  //string, 项目版本
+    "RedisVersion": "string"  //string, redis 版本
+  },
+  "msg": "获取成功"  //string
+}
+```
+
+---
+
+### 3. 用户登录接口
 
 ```text
 POST /signin
@@ -84,7 +127,7 @@ __Response__:
 
 ---
 
-### 3. 用户注册接口
+### 4. 用户注册接口
 
 ```text
 POST /signup
@@ -123,7 +166,7 @@ __Response__:
 
 ---
 
-### 4. 发送邮箱验证码接口
+### 5. 发送邮箱验证码接口
 
 ```text
 GET /signup/sendUsingEmail
@@ -149,7 +192,7 @@ __Response__:
 
 ---
 
-### 5. 刷新token接口
+### 6. 刷新token接口
 
 ```text
 POST /tokens/renew_access

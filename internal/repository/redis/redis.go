@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -19,6 +20,7 @@ type Store interface {
 	Del(c context.Context, key string) bool
 	Exists(c context.Context, key ...string) bool
 	Incr(c context.Context, key string) int64
+	Version() string
 }
 
 type cache struct {
@@ -97,4 +99,12 @@ func (c *cache) Del(ctx context.Context, key string) bool {
 func (c *cache) Incr(ctx context.Context, key string) int64 {
 	value, _ := c.client.Incr(ctx, key).Result()
 	return value
+}
+
+func (c *cache) Version() string {
+	server := c.client.Info(context.Background(), "server").Val()
+	spl1 := strings.Split(server, "# Server")
+	spl2 := strings.Split(spl1[1], "redis_version:")
+	spl3 := strings.Split(spl2[1], "redis_git_sha1:")
+	return spl3[0]
 }

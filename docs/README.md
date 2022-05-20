@@ -30,13 +30,15 @@ adminx服务相关接口
 
     3.1. [获取错误列表接口](./apis-basic.md#1-获取错误列表接口)
 
-    3.2. [用户登录接口](./apis-basic.md#2-用户登录接口)
+    3.2. [仪表盘接口](./apis-basic.md#2-仪表盘接口)
 
-    3.3. [用户注册接口](./apis-basic.md#3-用户注册接口)
+    3.3. [用户登录接口](./apis-basic.md#3-用户登录接口)
 
-    3.4. [发送邮箱验证码接口](./apis-basic.md#4-发送邮箱验证码接口)
+    3.4. [用户注册接口](./apis-basic.md#4-用户注册接口)
 
-    3.5. [刷新token接口](./apis-basic.md#5-刷新token接口)
+    3.5. [发送邮箱验证码接口](./apis-basic.md#5-发送邮箱验证码接口)
+
+    3.6. [刷新token接口](./apis-basic.md#6-刷新token接口)
 
 4. [菜单管理相关接口](./apis-menu.md)
 
