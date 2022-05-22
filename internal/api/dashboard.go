@@ -63,7 +63,7 @@ type viewResponse struct {
 func (server *Server) dashboard(c *bytego.Ctx) error {
 	pgVer, err := server.store.SelectVersion(c.Context())
 	if err != nil {
-		resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
+		return resp.Fail(http.StatusInternalServerError, code.ServerError).WithError(err).JSON(c)
 	}
 	redisVer := server.cache.Version()
 
