@@ -1,0 +1,137 @@
+[
+ {
+  "title": "获取菜单树接口",
+  "http_method": "GET",
+  "path": "//sys/menu/tree",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"data\": {\n    \"Button\": {\n      \"0\": [\n        {\n          \"auth\": [\n            \"string\"\n          ],\n          \"component\": \"string\",\n          \"created_at\": \"2022-05-16T16:47:48.741899+08:00\",\n          \"hyperlink\": \"string\",\n          \"icon\": \"string\",\n          \"id\": 0,\n          \"is_affix\": false,\n          \"is_hide\": false,\n          \"is_iframe\": false,\n          \"is_keep_alive\": false,\n          \"name\": \"string\",\n          \"parent\": 0,\n          \"path\": \"string\",\n          \"redirect\": \"string\",\n          \"sort\": 0,\n          \"title\": \"string\",\n          \"type\": 0\n        }\n      ]\n    },\n    \"Menu\": [\n      {\n        \"children\": [\n\n        ],\n        \"component\": \"string\",\n        \"id\": 0,\n        \"meta\": null,\n        \"name\": \"string\",\n        \"parent\": 0,\n        \"path\": \"string\",\n        \"sort\": 0,\n        \"title\": \"string\",\n        \"type\": 0\n      }\n    ]\n  },\n  \"msg\": \"获取成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "新增菜单接口",
+  "http_method": "POST",
+  "path": "//sys/menu",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"msg\": \"创建成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "更新菜单接口",
+  "http_method": "PUT",
+  "path": "//sys/menu/:id",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"msg\": \"修改成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "删除菜单接口",
+  "http_method": "DELETE",
+  "path": "//sys/menu/single/:id",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"msg\": \"修改成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "批量删除菜单接口",
+  "http_method": "DELETE",
+  "path": "//sys/menu/batch",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"msg\": \"修改成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "获取菜单对应的按钮接口",
+  "http_method": "GET",
+  "path": "//sys/menu/button/:id",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"data\": [\n    {\n      \"auth\": [\n        \"string\"\n      ],\n      \"component\": \"string\",\n      \"created_at\": \"2022-05-16T16:47:48.741899+08:00\",\n      \"hyperlink\": \"string\",\n      \"icon\": \"string\",\n      \"id\": 0,\n      \"is_affix\": false,\n      \"is_hide\": false,\n      \"is_iframe\": false,\n      \"is_keep_alive\": false,\n      \"name\": \"string\",\n      \"parent\": 0,\n      \"path\": \"string\",\n      \"redirect\": \"string\",\n      \"sort\": 0,\n      \"title\": \"string\",\n      \"type\": 0\n    }\n  ],\n  \"msg\": \"获取成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "菜单绑定/解绑接口",
+  "http_method": "POST",
+  "path": "//sys/menu/api/:id",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"msg\": \"操作成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "获取菜单绑定的接口接口",
+  "http_method": "GET",
+  "path": "//sys/menu/api/:menu",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"data\": [\n    0\n  ],\n  \"msg\": \"获取成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "获取菜单对应的接口接口",
+  "http_method": "GET",
+  "path": "//sys/menu/api-list/:menu",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"data\": [\n    {\n      \"created_at\": \"2022-05-16T16:47:48.741899+08:00\",\n      \"groups\": 0,\n      \"id\": 0,\n      \"method\": \"string\",\n      \"remark\": \"string\",\n      \"title\": \"string\",\n      \"url\": \"string\"\n    }\n  ],\n  \"msg\": \"获取成功\"\n}"
+   }
+  ]
+ }
+]

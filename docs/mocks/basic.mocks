@@ -1,0 +1,92 @@
+[
+ {
+  "title": "获取错误列表接口",
+  "http_method": "GET",
+  "path": "//code",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"data\": {\n    \"BusinessCodes\": [\n      {\n        \"code\": 0,\n        \"message\": \"string\"\n      }\n    ],\n    \"SystemCodes\": [\n      {\n        \"code\": 0,\n        \"message\": \"string\"\n      }\n    ]\n  },\n  \"msg\": \"获取成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "仪表盘接口",
+  "http_method": "GET",
+  "path": "//dashboard",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"data\": {\n    \"CpuCores\": 0,\n    \"CpuName\": \"string\",\n    \"CpuUsedPercent\": 1.23,\n    \"DiskTotal\": \"string\",\n    \"DiskUsed\": \"string\",\n    \"DiskUsedPercent\": 1.23,\n    \"Env\": \"string\",\n    \"GoArch\": \"string\",\n    \"GoOS\": \"string\",\n    \"GoPath\": \"string\",\n    \"Goroutine\": 0,\n    \"GoVersion\": \"string\",\n    \"Host\": \"string\",\n    \"HostName\": \"string\",\n    \"HostOS\": \"string\",\n    \"MemTotal\": \"string\",\n    \"MemUsed\": \"string\",\n    \"MemUsedPercent\": 1.23,\n    \"PostgresqlVersion\": \"string\",\n    \"ProjectPath\": \"string\",\n    \"ProjectVersion\": \"string\",\n    \"RedisVersion\": \"string\"\n  },\n  \"msg\": \"获取成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "用户登录接口",
+  "http_method": "POST",
+  "path": "//signin",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 0,\n  \"data\": {\n    \"access_token\": \"string\",\n    \"access_token_expires_at\": \"2022-05-16T16:47:48.741899+08:00\",\n    \"refresh_token\": \"string\",\n    \"refresh_token_expires_at\": \"2022-05-16T16:47:48.741899+08:00\",\n    \"session_id\": null,\n    \"user\": {\n      \"created_at\": \"2022-05-16T16:47:48.741899+08:00\",\n      \"email\": \"string\",\n      \"full_name\": \"string\",\n      \"password_change_at\": \"2022-05-16T16:47:48.741899+08:00\",\n      \"phone\": \"string\",\n      \"username\": \"string\"\n    }\n  },\n  \"msg\": \"string\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "用户注册接口",
+  "http_method": "POST",
+  "path": "//signup",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"data\": {\n    \"created_at\": \"2022-05-16T16:47:48.741899+08:00\",\n    \"email\": \"string\",\n    \"full_name\": \"string\",\n    \"password_change_at\": \"2022-05-16T16:47:48.741899+08:00\",\n    \"phone\": \"string\",\n    \"username\": \"string\"\n  },\n  \"msg\": \"操作成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "发送邮箱验证码接口",
+  "http_method": "GET",
+  "path": "//signup/sendUsingEmail",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"msg\": \"操作成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "刷新token接口",
+  "http_method": "POST",
+  "path": "//tokens/renew_access",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 0,\n  \"data\": {\n    \"access_token\": \"string\",\n    \"access_token_expires_at\": \"2022-05-16T16:47:48.741899+08:00\"\n  },\n  \"msg\": \"string\"\n}"
+   }
+  ]
+ }
+]

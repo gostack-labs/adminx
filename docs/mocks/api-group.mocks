@@ -1,0 +1,77 @@
+[
+ {
+  "title": "分页获取接口分组接口",
+  "http_method": "GET",
+  "path": "//sys/api-group",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"data\": [\n    {\n      \"created_at\": \"2022-05-16T16:47:48.741899+08:00\",\n      \"id\": 0,\n      \"name\": \"string\",\n      \"remark\": \"string\"\n    }\n  ],\n  \"msg\": \"获取成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "新增接口分组接口",
+  "http_method": "POST",
+  "path": "//sys/api-group",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"msg\": \"创建成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "更新接口分组接口",
+  "http_method": "PUT",
+  "path": "//sys/api-group/:id",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"msg\": \"修改成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "删除接口分组接口",
+  "http_method": "DELETE",
+  "path": "//sys/api-group/single/:id",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"msg\": \"删除成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "新增接口分组接口",
+  "http_method": "DELETE",
+  "path": "//sys/api-group/batch",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"msg\": \"删除成功\"\n}"
+   }
+  ]
+ }
+]

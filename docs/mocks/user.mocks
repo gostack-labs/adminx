@@ -1,0 +1,107 @@
+[
+ {
+  "title": "分页获取用户列表接口",
+  "http_method": "GET",
+  "path": "//sys/user",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"data\": [\n    {\n      \"created_at\": \"2022-05-16T16:47:48.741899+08:00\",\n      \"email\": \"string\",\n      \"full_name\": \"string\",\n      \"hashed_password\": \"string\",\n      \"password_change_at\": \"2022-05-16T16:47:48.741899+08:00\",\n      \"phone\": \"string\",\n      \"username\": \"string\"\n    }\n  ],\n  \"msg\": \"获取成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "获取用户详情接口",
+  "http_method": "GET",
+  "path": "//sys/user/info",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"data\": {\n    \"button\": [\n\n    ],\n    \"created_at\": \"2022-05-16T16:47:48.741899+08:00\",\n    \"email\": \"string\",\n    \"full_name\": \"string\",\n    \"hashed_password\": \"string\",\n    \"page\": [\n\n    ],\n    \"password_change_at\": \"2022-05-16T16:47:48.741899+08:00\",\n    \"phone\": \"string\",\n    \"role\": [\n      \"string\"\n    ],\n    \"username\": \"string\"\n  },\n  \"msg\": \"获取成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "通过用户获取用户详情接口",
+  "http_method": "GET",
+  "path": "//sys/user/info/:username",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"data\": {\n    \"created_at\": \"2022-05-16T16:47:48.741899+08:00\",\n    \"email\": \"string\",\n    \"full_name\": \"string\",\n    \"hashed_password\": \"string\",\n    \"password_change_at\": \"2022-05-16T16:47:48.741899+08:00\",\n    \"phone\": \"string\",\n    \"Role\": [\n      \"string\"\n    ],\n    \"username\": \"string\"\n  },\n  \"msg\": \"获取成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "新增用户接口",
+  "http_method": "POST",
+  "path": "//sys/user",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"data\": {\n    \"created_at\": \"2022-05-16T16:47:48.741899+08:00\",\n    \"email\": \"string\",\n    \"full_name\": \"string\",\n    \"hashed_password\": \"string\",\n    \"password_change_at\": \"2022-05-16T16:47:48.741899+08:00\",\n    \"phone\": \"string\",\n    \"username\": \"string\"\n  },\n  \"msg\": \"创建成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "更新用户信息接口",
+  "http_method": "PUT",
+  "path": "//sys/user/:username",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"msg\": \"修改成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "删除用户接口",
+  "http_method": "DELETE",
+  "path": "//sys/user/single/:username",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"msg\": \"删除成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "批量删除用户接口",
+  "http_method": "DELETE",
+  "path": "//sys/user/batch",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"msg\": \"删除成功\"\n}"
+   }
+  ]
+ }
+]

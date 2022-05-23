@@ -1,0 +1,137 @@
+[
+ {
+  "title": "分页获取角色列表接口",
+  "http_method": "GET",
+  "path": "//sys/role",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"data\": [\n    {\n      \"created_at\": \"2022-05-16T16:47:48.741899+08:00\",\n      \"id\": 0,\n      \"is_disable\": false,\n      \"key\": \"string\",\n      \"name\": \"string\",\n      \"remark\": \"string\",\n      \"sort\": 0\n    }\n  ],\n  \"msg\": \"获取成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "创建角色接口",
+  "http_method": "POST",
+  "path": "//sys/role",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"msg\": \"创建成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "更新角色接口",
+  "http_method": "PUT",
+  "path": "//sys/role/:id",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"msg\": \"更新成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "删除角色接口",
+  "http_method": "DELETE",
+  "path": "//sys/role/single/:id",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"msg\": \"删除成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "批量删除角色接口",
+  "http_method": "DELETE",
+  "path": "//sys/role/batch",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"msg\": \"删除成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "角色授权/解除菜单权限接口",
+  "http_method": "POST",
+  "path": "//sys/role/permission/:id",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"msg\": \"操作成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "获取角色授权的菜单权限接口",
+  "http_method": "GET",
+  "path": "//sys/role/permission/:id",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"data\": {\n    \"button\": {\n      \"0\": [\n        0\n      ]\n    },\n    \"menu\": [\n      0\n    ]\n  },\n  \"msg\": \"获取成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "角色授权/解除菜单权限接口",
+  "http_method": "POST",
+  "path": "//sys/role/api/:id",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"msg\": \"操作成功\"\n}"
+   }
+  ]
+ },
+ {
+  "title": "获取角色授权的接口权限接口",
+  "http_method": "GET",
+  "path": "//sys/role/api/:id",
+  "headers": {
+   "Content-Type": "application/json"
+  },
+  "response": [
+   {
+    "is_mock": true,
+    "http_code": 200,
+    "body": "{\n  \"code\": 10000,\n  \"data\": [\n    0\n  ],\n  \"msg\": \"获取成功\"\n}"
+   }
+  ]
+ }
+]
